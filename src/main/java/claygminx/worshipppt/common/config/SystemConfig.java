@@ -7,6 +7,10 @@ import org.apache.commons.io.FileUtils;
 import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -14,6 +18,7 @@ import java.util.Set;
 /**
  * 系统配置
  * <p>使用用户目录。此软件的配置文件夹的名称是.worship-ppt，在里面放配置数据。</p>
+ * TODO 用户配置每次都丢失 需要解决
  */
 @Slf4j
 public class SystemConfig {
@@ -69,13 +74,14 @@ public class SystemConfig {
             }
         }
 
-        File userConfigFile = new File(appDir, APP_CONFIG_NAME); // 查找appDir目录中的APP_CONFIG_NAME配置文件
+        // 查找appDir目录中的APP_CONFIG_NAME配置文件（user_home/.worship-ppt/system.config）
+        File userConfigFile = new File(appDir, APP_CONFIG_NAME);
         ClassLoader classLoader = SystemConfig.class.getClassLoader();
         if (userConfigFile.exists()) {
             logger.info("配置文件已经存在，直接使用。");
         } else {
             logger.info("用户目录不存在配置文件，拷贝一份过去。");
-            try (InputStream inputStream = classLoader.getResourceAsStream(APP_CONFIG_NAME)) { // 读取jar包中的默认配置文件
+            try (InputStream inputStream = classLoader.getResourceAsStream(APP_CONFIG_NAME)) { // 读取jar包中的默认配置文件(system.config)
                 if (inputStream != null) {
                     FileUtils.copyToFile(inputStream, userConfigFile);
                 } else {
@@ -102,17 +108,19 @@ public class SystemConfig {
 
         // 2.读取配置文件的路径
         String userPropertiesPath = null;
-        try (InputStreamReader reader = new InputStreamReader(
-                new FileInputStream(userConfigFile), StandardCharsets.UTF_8)
-        ) {
-            Properties cacheSystemConfig = new Properties();
             // 解析默认配置文件
-            cacheSystemConfig.load(reader);
-            // 取得默认配置中key=SystemConfigPath的值，表示用户配置的路径
-            userPropertiesPath = cacheSystemConfig.getProperty("SystemConfigPath");
+            // 取得默认配置中key为SystemConfigPath的值，表示用户配置的路径
+            // Properties的解析规则会导致路径中的'\'丢失，这也是用户配置总是加载失败的根本原因
+            // userPropertiesPath = cacheSystemConfig.getProperty("SystemConfigPath");
+
+            // 更改为使用NIO的Files来解决读取出错的问题
+        List<String> configurations = null;
+        try {
+            configurations = Files.readAllLines(Paths.get(userConfigFile.getAbsolutePath()), StandardCharsets.UTF_8);
+            userPropertiesPath = (configurations.get(0).split("="))[1];
             logger.info("SystemConfigPath={}", userPropertiesPath);
-        } catch (Exception e) {
-            logger.error("读取SystemConfigPath失败！", e);
+        } catch (IOException ex) {
+            logger.error("读取SystemConfigPath失败！", ex);
             JOptionPane.showMessageDialog(
                     null,
                     "读取SystemConfigPath失败！",
@@ -122,9 +130,11 @@ public class SystemConfig {
             System.exit(1);
         }
 
+
         // 3.加载用户配置
         Properties userProperties = null;
         try {
+            // TODO 用户配置的读取总是失败
             userProperties = loadUserProperties(userPropertiesPath);
         } catch (Exception e) {
             logger.error("用户配置加载失败！", e);
@@ -136,7 +146,7 @@ public class SystemConfig {
             );
             userPropertiesPath = JOptionPane.showInputDialog("你可以输入正确的配置文件的路径，再重新启动:)");
             try {
-                update(userPropertiesPath);
+                update(userPropertiesPath);// 获取用户配置错误后更新
                 userProperties = loadUserProperties(userPropertiesPath);
             } catch (IOException e2) {
                 logger.error("用户配置加载失败！", e2);
@@ -195,6 +205,8 @@ public class SystemConfig {
         }
     }
 
+
+
     private SystemConfig() {
     }
 
@@ -243,18 +255,30 @@ public class SystemConfig {
     public static void update(String propFilePath) throws IOException {
         // "SystemConfigPath=propFilePath"
         String conf = "SystemConfigPath=" + propFilePath;
-        // 用户主路径下的配置目录
+        // 用户主路径下的配置目录（user_home/.worship-ppt）
         File appDir = new File(System.getProperty("user.home"), APP_CONFIG_DIR_PATH);
         // 配置目录下的APP_CONFIG_NAME配置文件
         File systemConfigFile = new File(appDir, APP_CONFIG_NAME);
+
         // 将用户输入的配置文件路径写入默认配置
         FileUtils.writeStringToFile(systemConfigFile, conf, StandardCharsets.UTF_8);
+
+        // 测试写入的内容
+//        Path path = Paths.get(systemConfigFile.getAbsolutePath());
+//        logger.info("默认配置的绝对路径：" + path);
+//        List<String> strings = Files.readAllLines(path, StandardCharsets.UTF_8);
+//        for (String string : strings) {
+//            logger.info("写入后读取到配置：" + string);
+//        }
+
         // 重新加载配置
         Properties userProperties = loadUserProperties(propFilePath);
         // 合并用户配置
         mergeUserProperties(userProperties);
         // 给用户的配置路径动态赋值
         USER_CONFIG_FILE_PATH = propFilePath;
+        // 测试打印重新输入后的用户配置路径
+        logger.info("重新输入的用户配置文件路径" + USER_CONFIG_FILE_PATH);
     }
 
     /**
@@ -304,5 +328,4 @@ public class SystemConfig {
         }
         logger.info("合并了用户配置");
     }
-
 }

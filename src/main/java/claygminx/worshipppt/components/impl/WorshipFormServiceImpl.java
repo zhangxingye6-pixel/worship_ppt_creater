@@ -311,7 +311,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
         Box box = Box.createHorizontalBox();
         int strutWidth = 5;
-        box.add(new JLabel("请先选择敬拜模式："));
+        box.add(new JLabel("请选择敬拜模式："));
         box.add(Box.createHorizontalStrut(strutWidth));
         box.add(withoutHolyCommunionRadio);
         box.add(Box.createHorizontalStrut(strutWidth));
@@ -585,7 +585,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
      * @param rootBox 根盒子
      */
     private void addSubmitPanel(Box rootBox) {
-        JButton submitButton = new JButton("开始制作");
+        JButton submitButton = new JButton("生成PPT");
         JPanel panel = new JPanel();
         panel.add(submitButton);
         rootBox.add(panel);
@@ -935,20 +935,20 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         PoetryContentEntity content = worshipEntity.getPoetryContent();
         if (content != null) {
             switch (name) {
-                case PoetryAlbumName.PRAY_POETRY:
-                    return content.getPrayPoetryAlbum();
-                case PoetryAlbumName.PRACTISE_POETRY:
-                    return content.getPractisePoetryAlbum();
-                case PoetryAlbumName.WORSHIP_POETRY:
-                    return content.getWorshipPoetryAlbum();
-                case PoetryAlbumName.RESPONSE_POETRY:
-                    return content.getResponsePoetryAlbum();
-                case PoetryAlbumName.OFFERTORY_POETRY:
-                    return content.getOffertoryPoetryAlbum();
-                case PoetryAlbumName.HOLY_COMMUNION_POETRY:
-                    return content.getHolyCommunionPoetryAlbum();
-                default:
-                    return content.getInitiationPoetryAlbum();
+
+                case PoetryAlbumName.PRAY_POETRY -> content.getPrayPoetryAlbum();
+
+                case PoetryAlbumName.PRACTISE_POETRY -> content.getPractisePoetryAlbum();
+
+                case PoetryAlbumName.WORSHIP_POETRY -> content.getWorshipPoetryAlbum();
+
+                case PoetryAlbumName.RESPONSE_POETRY -> content.getResponsePoetryAlbum();
+
+                case PoetryAlbumName.OFFERTORY_POETRY -> content.getOffertoryPoetryAlbum();
+
+                case PoetryAlbumName.HOLY_COMMUNION_POETRY -> content.getHolyCommunionPoetryAlbum();
+
+                default -> content.getInitiationPoetryAlbum();
             }
         }
         return null;
@@ -1407,7 +1407,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
      */
     private Font getBoldFont() {
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            return new Font("微软雅黑", Font.BOLD, 16);
+            return new Font("微软雅黑 Light", Font.BOLD, 15);
         } else {
             return new Font("PingFang SC", Font.BOLD, 16);
         }
