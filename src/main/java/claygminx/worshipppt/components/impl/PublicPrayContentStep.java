@@ -14,7 +14,7 @@ public class PublicPrayContentStep extends AbstractWorshipStep {
 
     private final static Logger logger = LoggerFactory.getLogger(PublicPrayContentStep.class);
 
-    public static String example = "1、";
+    public static String example = "1. ";
 
     private final String content;
 
