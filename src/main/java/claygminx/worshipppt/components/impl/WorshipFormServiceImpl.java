@@ -585,7 +585,8 @@ public class WorshipFormServiceImpl implements WorshipFormService {
      * @param rootBox 根盒子
      */
     private void addSubmitPanel(Box rootBox) {
-        JButton submitButton = new JButton("生成PPT");
+        JButton submitButton = new JButton("生成PPT" +
+                "");
         JPanel panel = new JPanel();
         panel.add(submitButton);
         rootBox.add(panel);
