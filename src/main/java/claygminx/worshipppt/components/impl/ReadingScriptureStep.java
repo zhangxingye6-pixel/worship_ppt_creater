@@ -79,13 +79,15 @@ public class ReadingScriptureStep extends AbstractWorshipStep {
 
             // 不同的朗读者字体颜色不一样
             if (trimScriptureItem.startsWith("会众：")) {
+                // 会众读经：蓝色
                 textRun.setFontColor(Color.BLUE);
             } else if (trimScriptureItem.startsWith("主领：")) {
+                // 主领读经：黑色
                 textRun.setFontColor(Color.BLACK);
             } else {
+                // 合读部分：红色
                 textRun.setFontColor(new Color(208, 15, 15));
             }
-
             // 控制幻灯片里经文的数量和幻灯片的数量
             int currentHeight = (int) Math.ceil(placeholder.getTextHeight());// 当前文本框的高度
             int n = (int) Math.ceil((double) trimScriptureItem.length() / MAX_CHAR_COUNT);// 此节经文可能展示为多少行

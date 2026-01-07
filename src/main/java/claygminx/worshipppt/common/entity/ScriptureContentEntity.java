@@ -34,6 +34,12 @@ public class ScriptureContentEntity implements Serializable {
      */
     private String readingScripture;
 
+    /**
+     * 证道经文
+     */
+    private String preachScripture;
+
+
     public String getSummon() {
         return summon;
     }

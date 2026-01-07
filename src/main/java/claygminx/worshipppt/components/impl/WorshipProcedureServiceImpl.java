@@ -92,6 +92,10 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
             expression = String.format("new %s(#ppt, #layout)", clazz);
         }
 
+        // 打印完整的 OGNL 表达式
+        logger.debug("生成的 OGNL 表达式: {}", expression);
+
+        // 执行 OGNL
         try {
             return (WorshipStep) Ognl.getValue(expression, context, worshipEntity);
         } catch (OgnlException e) {

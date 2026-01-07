@@ -145,6 +145,8 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                     + "<li>如果后面仅跟着章，章和章用英文逗号隔开，若章和章是连续的，可以用英文短横线连接；</li>"
                     + "<li>章和节开始用英文冒号隔开；</li>"
                     + "<li>节和节的分隔符，跟章和章一样，用英文逗号连接连续节，或者用英文逗号分隔节和节。</li>"
+                    + "<li>节和节的分隔符，跟章和章一样，用英文逗号连接连续节，或者用英文逗号分隔节和节。</li>"
+                    + "<li>跨章节的情况，如出1:20-2:10，使用->连接，如出1:20->2:10 出1->2:10 出1:10->2</li>"
                     + "</ol>"
                     + "</html>");
             String inputText = (String) JOptionPane.showInputDialog(
@@ -335,7 +337,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         CoverEntity cover = worshipEntity.getCover();
 
         worshipDateTextField = addRegularTableInputRow(tableBox, CoverKey.WORSHIP_DATE);
-        worshipDateTextField.setToolTipText("推荐填写格式：主后某年某月某日");
+        worshipDateTextField.setToolTipText("推荐填写格式：主后yyyy年MM月dd日");
         if (cover != null && !isEmpty(cover.getWorshipDate())) {
             worshipDateTextField.setText(cover.getWorshipDate());
         }
@@ -633,7 +635,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                                     pptFile.getAbsolutePath() +
                                     "</p>" +
                                     "<p>你还需要做一些检查工作：</p>" +
-                                    "<ol><li><b>宣信和证道内容需要手动制作；</b></li>" +
+                                    "<ol><li><b>宣信内容需要手动制作；</b></li>" +
                                     "<li>圣餐诗歌需要手动调整以符合圣礼需要；</li>" +
                                     "<li>还有更多需要细心检查的细节。</li></ol></html>";
                             JTextPane f = createTextPane(message);

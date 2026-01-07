@@ -48,6 +48,8 @@ public class ScriptureUtil {
      *         <li>如果后面仅跟着章，章和章用英文逗号隔开，若章和章是连续的，可以用英文短横线连接；</li>
      *         <li>章和节开始用英文冒号隔开；</li>
      *         <li>节和节的分隔符，跟章和章一样，用英文逗号连接连续节，或者用英文逗号分隔节和节。</li>
+     *         <li>可以在章的中途开始查找，亦可以在章节的中途结束；否则出现连续的章节还需要打开圣经查一下前一章的最后一节是多少</li>
+     *         <li>无论整章节在前或是在后，都使用“--”连接</li>
      *     </ol>
      * </p>
      *
@@ -58,6 +60,9 @@ public class ScriptureUtil {
      *     <li>诗42-43</li>
      *     <li>诗42,43</li>
      *     <li>创1:1-5,7,9,11-15,2:1-3,5:1-5</li>
+     *     <li>新增：创1:10->2:10</li>
+     *     <li>新增：创1->2:10</li>
+     *     <li>新增：创1:10->2</li>
      * </ol>
      *
      * @param arg 字符串形式的经文编号
@@ -66,6 +71,7 @@ public class ScriptureUtil {
      * @throws ScriptureNumberException 若给定参数不符合经文编号格式，抛出此异常
      */
     public static ScriptureNumberEntity parseNumber(String arg) throws ScriptureNumberException {
+        // 参数合法性校验
         if (arg == null || arg.isEmpty()) {
             throw new IllegalArgumentException("参数不可为空！");
         }
@@ -73,6 +79,7 @@ public class ScriptureUtil {
         logger.debug("开始解析经文编号");
         char[] chars = arg.toCharArray();
         int sectionsStartIndex = -1;
+        // 找到首个出现数字的位置
         // 应从第二个字符开始，因为通常而言，第一个字符是书卷名称的一部分
         for (int i  = 1; i < chars.length; i++) {
             char c = chars[i];
@@ -83,12 +90,15 @@ public class ScriptureUtil {
             }
         }
         if (sectionsStartIndex == -1) {
-            throw new ScriptureNumberException("没有章节！");
+            throw new ScriptureNumberException("参数异常 - 没有输入章节！");
         }
 
         ScriptureNumberEntity result = new ScriptureNumberEntity(arg);
+        // 确定书卷名称
         String bookName = arg.substring(0, sectionsStartIndex).trim();
+        // 确定书卷章节
         String sections = arg.substring(sectionsStartIndex).trim();
+        // 获取解析处理后的章节列表
         List<ScriptureSectionEntity> sectionList = parseSections(sections);
 
         result.setBookFullName(bookName);
@@ -122,17 +132,75 @@ public class ScriptureUtil {
         String currentType = "chapter";
         // 遍历分割结果
         for (String splitItem : splitResult) {
-            if (splitItem.contains(":")) {
+            // 处理新增的三种包含箭头->的类型
+            if (splitItem.contains("->")) {
+                parseSectionWithArrow(splitItem, sectionList);
+            } else if  (splitItem.contains(":")) {
                 parseSectionWithColon(splitItem, sectionList);
+                // 将标记改为verse, 因为输入的章节编号是人为有序的，在上一个条件处理完章号之后，后面的数字是节号
                 currentType = "verse";
             } else if (splitItem.contains("-")) {
                 parseSectionWithinDash(splitItem, currentType, sectionList);
             } else {
+                // 如果标记是chapter，说明处理的是出1，2这样的章号；如果标记是verse，说明处理的是2，3，4这样的节号
                 parseDigitSection(splitItem, currentType, sectionList);
             }
         }
         return sectionList;
     }
+
+
+    /**
+     * 解析存在箭头->的情况
+     * 解析的形式：创1:10->4:10 创1->4:10 创1:10->4
+     *
+     * @param splitItem
+     * @param sectionList
+     */
+    static void parseSectionWithArrow(String splitItem, List<ScriptureSectionEntity> sectionList) throws ScriptureNumberException {
+        // 通过箭头拆分
+        String[] split = splitItem.split("->");
+        // 存在跨多个章节的情况, 定义章节首尾编号标记
+        int startChapter;
+        int endChapter;
+        try {
+            startChapter = Integer.parseInt(split[0].split(":")[0]);
+            endChapter = Integer.parseInt(split[1].split(":")[0]);
+        } catch (NumberFormatException e) {
+            throw new ScriptureNumberException("章节编号错误，请重新检查！");
+        }
+
+        // 检查章节列表是否为空，如果为空，则创建一个
+        if (sectionList == null) {
+            sectionList = new ArrayList<>(endChapter - startChapter + 1);
+        }
+        for (int i = startChapter; i <= endChapter; i++) {
+            // 每次循环创建一个新的章节实体
+            ScriptureSectionEntity scriptureSectionEntity = new ScriptureSectionEntity();
+            ArrayList<Integer> verses = new ArrayList<>();
+            scriptureSectionEntity.setChapter(i);
+            // 如果有间隔的章节，节列表为null，表示全章；首位需要特殊处理，使用枚举标记
+            if (i == startChapter) {
+                // 检查是否存在节号
+                if (split[0].contains(":")) {
+                    // 将节号加入节列表
+                    verses.add(Integer.parseInt(split[0].split(":")[1]));
+                    scriptureSectionEntity.setStatusToEndOfChapter();
+                    // 本章本节的信息已经全部找到，添加到章节列表中
+                }
+            } else if (i != startChapter && i != endChapter) {
+                // 是中间章节, 将节列表置空表示全章节
+                scriptureSectionEntity.setVerses(null);
+            } else if (i == endChapter) {
+                if (split[1].contains(";")){
+                    scriptureSectionEntity.setStatusFromStartOfChapter();
+                    verses.add(Integer.parseInt(split[1].split(":")[1]));
+                }
+            }
+            sectionList.add(scriptureSectionEntity);
+        }
+    }
+
 
     /**
      * 精简经文
@@ -140,6 +208,7 @@ public class ScriptureUtil {
      * @return 精简后的经文
      */
     public static String simplifyScripture(String scripture) {
+        // 通过key取出配置中的正则表达式，去除经文中的某些符号
         String pattern = SystemConfig.getString(Dict.ScriptureProperty.REGEX);
         return scripture.replaceAll(pattern, "");
     }
@@ -156,6 +225,7 @@ public class ScriptureUtil {
             throw new ScriptureNumberException("冒号（:）用法错误！");
         }
 
+        // step1: 找到章编号
         int chapter;
         try {
             chapter = Integer.parseInt(sectionArray[0]);
@@ -165,13 +235,19 @@ public class ScriptureUtil {
 
         List<Integer> verses = new ArrayList<>();
         ScriptureSectionEntity entity = new ScriptureSectionEntity();
+        // 将找到的章号添加到列表
         entity.setChapter(chapter);
         entity.setVerses(verses);
+        // 将带有章号的章节添加到列表，对列表来说，是一个新元素
         sectionList.add(entity);
 
+        // step2: 找到节编号
+        // 因为输入是有顺序的，可以保证单独的节找到所在的章
+        // 解析由短横线（-）连接的章节部分
         if (sectionArray[1].contains("-")) {
             parseSectionWithinDash(sectionArray[1], "verse", sectionList);
         } else {
+            // 解析出单独的节号，直接添加到节列表
             parseDigitSection(sectionArray[1], "verse", sectionList);
         }
     }
@@ -193,8 +269,10 @@ public class ScriptureUtil {
 
     /**
      * 解析由短横线（-）连接的章节部分
-     * @param sections 章节
-     * @param type chapter，或verse
+     * 要额外处理2种情况 章-章:节 章-节:章-节
+     *
+     * @param sections    章节
+     * @param type        chapter，或verse
      * @param sectionList 章节列表
      * @throws ScriptureNumberException 若给定章节参数的格式不是“数字-数字”，则抛出此异常
      */
@@ -204,6 +282,7 @@ public class ScriptureUtil {
             throw new ScriptureNumberException("短横线（-）用法错误！");
         }
 
+        // 短横线左右的数字表示的节的起始
         int start, end;
         try {
             start = Integer.parseInt(sectionArray[0]);
@@ -234,8 +313,10 @@ public class ScriptureUtil {
             section.setChapter(n);
             sectionList.add(section);
         } else {
+            // 取出在parseSectionWithColon()中添加的最后一个章节实体，verse是最后一个实体中章所对应的节
             ScriptureSectionEntity section = sectionList.get(sectionList.size() - 1);
             List<Integer> verses;
+            // 在章节实体中没有设置节，有则继续在末尾添加节数
             if (section.getVerses() == null) {
                 verses = new ArrayList<>();
                 section.setVerses(verses);
