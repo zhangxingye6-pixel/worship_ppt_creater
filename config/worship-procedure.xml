@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <worship>
-    <model name="无圣餐">
+    <model name="常规">
         <worship-step name="封面" layout="封面" class="claygminx.worshipppt.components.impl.CoverStep" data="cover"/>
         <worship-step name="诗歌清单" layout="诗歌清单" class="claygminx.worshipppt.components.impl.PoetryContentStep" data="poetryContent"/>
         <worship-step name="祷告诗歌" layout="常规诗歌" class="claygminx.worshipppt.components.impl.RegularPoetryStep" data="poetryContent.prayPoetryAlbum.poetryList" if="poetryContent.prayPoetryAlbum != null"/>
@@ -24,7 +24,7 @@
         <worship-step name="宣信" layout="宣信标题" class="claygminx.worshipppt.components.impl.DeclarationTitleStep" data="declaration"/>
         <worship-step name="宣信" layout="宣信内容" class="claygminx.worshipppt.components.impl.DeclarationContentStep"/>
         <worship-step name="证道" layout="证道摘要" class="claygminx.worshipppt.components.impl.PreachSummaryStep" data="preach"/>
-        <worship-step name="证道" layout="证道经文" class="claygminx.worshipppt.components.impl.PreachScriptureStep" data="preach"/>
+        <worship-step name="证道" layout="证道经文" class="claygminx.worshipppt.components.impl.PreachScriptureStep" data="#scriptureService, preach"/>
         <worship-step name="证道" layout="证道" class="claygminx.worshipppt.components.impl.PreachStep" data="preach"/>
         <worship-step name="回应诗歌" layout="诗歌标题" class="claygminx.worshipppt.components.impl.PoetryTitleStep" data="'以诗歌回应上帝', poetryContent.responsePoetryAlbum.poetryList[0].name"/>
         <worship-step name="回应诗歌" layout="常规诗歌" class="claygminx.worshipppt.components.impl.RegularPoetryStep" data="poetryContent.responsePoetryAlbum.poetryList.subList(0, 1)"/>
@@ -40,7 +40,7 @@
         <worship-step name="家事报告" layout="家事报告" class="claygminx.worshipppt.components.impl.FamilyReportStep" data="familyReports"/>
         <worship-step name="团契学习" layout="团契学习" class="claygminx.worshipppt.components.impl.FixedStep"/>
     </model>
-    <model name="有圣餐">
+    <model name="圣餐">
         <worship-step name="封面" layout="封面" class="claygminx.worshipppt.components.impl.CoverStep" data="cover"/>
         <worship-step name="诗歌清单" layout="诗歌清单" class="claygminx.worshipppt.components.impl.PoetryContentStep" data="poetryContent"/>
         <worship-step name="祷告诗歌" layout="常规诗歌" class="claygminx.worshipppt.components.impl.RegularPoetryStep" data="poetryContent.prayPoetryAlbum.poetryList" if="poetryContent.prayPoetryAlbum != null"/>
@@ -93,7 +93,7 @@
         <worship-step name="家事报告" layout="家事报告" class="claygminx.worshipppt.components.impl.FamilyReportStep" data="familyReports"/>
         <worship-step name="团契学习" layout="团契学习" class="claygminx.worshipppt.components.impl.FixedStep"/>
     </model>
-    <model name="有入会">
+    <model name="入会">
         <worship-step name="封面" layout="封面" class="claygminx.worshipppt.components.impl.CoverStep" data="cover"/>
         <worship-step name="诗歌清单" layout="诗歌清单" class="claygminx.worshipppt.components.impl.PoetryContentStep" data="poetryContent"/>
         <worship-step name="祷告诗歌" layout="常规诗歌" class="claygminx.worshipppt.components.impl.RegularPoetryStep" data="poetryContent.prayPoetryAlbum.poetryList" if="poetryContent.prayPoetryAlbum != null"/>

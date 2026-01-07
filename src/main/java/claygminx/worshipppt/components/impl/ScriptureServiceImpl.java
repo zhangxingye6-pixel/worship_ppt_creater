@@ -1,5 +1,6 @@
 package claygminx.worshipppt.components.impl;
 
+import claygminx.worshipppt.common.ScriptureStatusEnum;
 import claygminx.worshipppt.common.config.FreeMarkerConfig;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.*;
@@ -25,20 +26,22 @@ import java.util.Optional;
 public class ScriptureServiceImpl implements ScriptureService {
 
     static {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new SystemException("无法加载org.sqlite.JDBC！", e);
-        }
+        // 驱动会通过 SPI 自动注册
+//        try {
+//            Class.forName("org.sqlite.JDBC");
+//        } catch (ClassNotFoundException e) {
+//            throw new SystemException("无法加载org.sqlite.JDBC！", e);
+//        }
 
         String dbFilePath = SystemConfig.getString(Dict.DatabaseProperty.SQLITE_PATH);
         if (dbFilePath == null) {
-            throw new SystemException("未设置圣经数据库！");
+            throw new SystemException("未设置圣经数据库！请检查数据库配置");
         }
         File dbFile = new File(dbFilePath);
         if (!dbFile.exists()) {
             throw new SystemException(dbFilePath + "不存在！");
         }
+        // 格式化的数据库路径
         DB_URL = "jdbc:sqlite:" + dbFile.getAbsolutePath();
     }
 
@@ -48,11 +51,13 @@ public class ScriptureServiceImpl implements ScriptureService {
 
     private static ScriptureService scriptureService;
 
+    // 防止外部创建实例
     private ScriptureServiceImpl() {
     }
 
     /**
      * 获取经文服务实例对象
+     *
      * @return 经文服务实例对象
      */
     public static ScriptureService getInstance() {
@@ -89,6 +94,7 @@ public class ScriptureServiceImpl implements ScriptureService {
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 String[] result = new String[2];
+                // 获取书卷全称和简称
                 result[0] = resultSet.getString(1);
                 result[1] = resultSet.getString(2);
                 logger.debug("BookId={}, FullName is {}, ShortName is {}", bookId, result[0], result[1]);
@@ -130,15 +136,19 @@ public class ScriptureServiceImpl implements ScriptureService {
 
     @Override
     public ScriptureEntity getScriptureWithFormat(ScriptureNumberEntity scriptureNumber, String format) {
+        // 检查书号，章节号合法性
         checkScriptureNumber(scriptureNumber);
-
+        // 获取对应的章节列表
         List<ScriptureSectionEntity> scriptureSections = scriptureNumber.getScriptureSections();
+        // 节列表
         List<ScriptureVerseEntity> scriptureVerseEntityList = new ArrayList<>();
         try (Connection connection = getConnection()) {
+            // 通过章节列表获取节
             for (ScriptureSectionEntity scriptureSection : scriptureSections) {
                 List<Integer> verses = scriptureSection.getVerses();
                 if (verses == null || verses.isEmpty()) {
                     logger.debug("没有写节，那么直接按章来查询经文");
+                    // 通过bookId, chapter, verse确定唯一的经文
                     PreparedStatement preparedStatement = connection.prepareStatement("SELECT Verse,Scripture FROM Bible WHERE Book=? AND Chapter=? AND Scripture!='-' ORDER BY Id");
                     preparedStatement.setInt(1, scriptureNumber.getBookId());
                     preparedStatement.setInt(2, scriptureSection.getChapter());
@@ -153,7 +163,9 @@ public class ScriptureServiceImpl implements ScriptureService {
                         scriptureVerseEntity.setScripture(scripture);
                         scriptureVerseEntityList.add(scriptureVerseEntity);
                     }
-                } else {
+                } else if (scriptureSection.getStatus() == ScriptureStatusEnum.NOMAL) {
+                    logger.debug("普通节，直接按照编号查询经文");
+                    // 执行一般流程，节编号所见即所得
                     for (int i = 0; i < verses.size(); i++) {
                         int verseNumber = verses.get(i);
                         PreparedStatement preparedStatement = connection.prepareStatement("SELECT Scripture FROM Bible WHERE Book=? AND Chapter=? AND Verse=? AND Scripture!='-'");
@@ -172,6 +184,56 @@ public class ScriptureServiceImpl implements ScriptureService {
                             scriptureVerseEntityList.add(scriptureVerseEntity);
                         }
                     }
+                } else if (scriptureSection.getStatus() == ScriptureStatusEnum.FROM_START_OF_CHAPTER) {
+                    // 需要从节所在的章第一节开始，到节所对应的节结束
+                    logger.debug("存在从头开始的标记，从章的最开始查询");
+
+                    // 取得结束的节号
+                    Integer endVerse = verses.get(0);
+                    PreparedStatement preparedStatement = connection.prepareStatement("SELECT Scripture FROM Bible WHERE Book=? AND Chapter=? AND Verse>=? AND Scripture!='-'");
+                    preparedStatement.setInt(1, scriptureNumber.getBookId());
+                    preparedStatement.setInt(2, scriptureSection.getChapter());
+                    preparedStatement.setInt(3, endVerse);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    // 定义一个计数器，作为节编号
+                    int verseNumber = 1;
+                    while (resultSet.next()) {
+                        String verse = resultSet.getString(1);
+                        // 简化经文
+                        verse = ScriptureUtil.simplifyScripture(verse);
+                        ScriptureVerseEntity scriptureVerseEntity = new ScriptureVerseEntity();
+                        scriptureVerseEntity.setBookId(scriptureNumber.getBookId());
+                        scriptureVerseEntity.setChapter(scriptureSection.getChapter());
+                        scriptureVerseEntity.setVerse(verseNumber);
+                        scriptureVerseEntityList.add(scriptureVerseEntity);
+                        // 下一节的编号（若存在）
+                        verseNumber++;
+                    }
+
+
+                } else if (scriptureSection.getStatus() == ScriptureStatusEnum.TO_END_OF_CHAPTER) {
+                    // 需要从节开始，到本章的结束
+                    logger.debug("存在到章结束的标记，从节所对应的节开始查询，直到章的结尾");
+                    // 取得开始的节编号
+                    Integer startVerse = verses.get(0);
+
+                    PreparedStatement preparedStatement = connection.prepareStatement("SELECT Scripture FROM Bible WHERE Book = ? AND Chapter = ? AND Verse >= ?");
+                    preparedStatement.setInt(1, scriptureNumber.getBookId());
+                    preparedStatement.setInt(2, scriptureSection.getChapter());
+                    preparedStatement.setInt(3, startVerse);
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    int verseNumber = 1;
+                    while (resultSet.next()) {
+                        String verse = resultSet.getString(1);
+                        ScriptureVerseEntity scriptureVerseEntity = new ScriptureVerseEntity();
+                        scriptureVerseEntity.setVersionId(scriptureNumber.getBookId());
+                        scriptureVerseEntity.setChapter(scriptureSection.getChapter());
+                        scriptureVerseEntity.setVerse(verseNumber);
+                        scriptureVerseEntity.setScripture(verse);
+                        scriptureVerseEntityList.add(scriptureVerseEntity);
+                        // 下一节的编号（若存在）
+                        verseNumber++;
+                    }
                 }
             }
 
@@ -185,14 +247,20 @@ public class ScriptureServiceImpl implements ScriptureService {
                 scriptureBookEntity.setBookShortName(scriptureNumber.getBookShortName());
                 scriptureBookEntity.setScriptureVerseList(scriptureVerseEntityList);
 
+                // 格式化获取的经文
+                // 获取FreeMarker核心配置
                 Configuration configuration = FreeMarkerConfig.getConfiguration();
+                // 通过格式的名称加载对应的FreeMarker模板
                 Template template = configuration.getTemplate(format);
                 try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                     Writer out = new OutputStreamWriter(byteArrayOutputStream)) {
+                    Writer out = new OutputStreamWriter(byteArrayOutputStream)) {
 
                     template.process(scriptureBookEntity, out);
                     byte[] bytes = byteArrayOutputStream.toByteArray();
                     String scripture = new String(bytes);
+
+                    logger.debug("格式化之后的经文[{}]", scripture);
+
                     ScriptureEntity scriptureEntity = new ScriptureEntity();
                     scriptureEntity.setScriptureNumber(scriptureNumber);
                     scriptureEntity.setScripture(scripture);
@@ -210,6 +278,7 @@ public class ScriptureServiceImpl implements ScriptureService {
 
     /**
      * 检查必备参数
+     *
      * @param scriptureNumber 经文编号
      */
     private void checkScriptureNumber(ScriptureNumberEntity scriptureNumber) {
@@ -226,6 +295,7 @@ public class ScriptureServiceImpl implements ScriptureService {
 
     /**
      * 获取SQLite获取连接
+     *
      * @return 数据库连接，记得要关闭该连接
      */
     private Connection getConnection() {

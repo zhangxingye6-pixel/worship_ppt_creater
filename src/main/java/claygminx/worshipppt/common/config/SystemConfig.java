@@ -33,6 +33,7 @@ public class SystemConfig {
      */
     public final static String CORE_PROPERTIES = "core.properties";
 
+    // 用户配置文件路径（运行时赋值）
     public static String USER_CONFIG_FILE_PATH = "";
 
     /**
@@ -47,10 +48,13 @@ public class SystemConfig {
      */
     public final static Properties properties = new Properties();
 
+    // 完成对properties的初始化, 初始化的结果是用户配置与核心配置会合并到properties中
     static {
-        // 1.先去用户目录看是否已经有配置
+        // 1.先去用户目录(每个系统可能不同)看是否已经有配置
+        // System.getProperty("user.home")获得用户主路径
         File appDir = new File(System.getProperty("user.home"), APP_CONFIG_DIR_PATH);
         if (!appDir.exists()) {
+            // 创建一个隐藏目录.worship-ppt
             logger.info("创建目录{}", APP_CONFIG_DIR_PATH);
             boolean flag = appDir.mkdirs();
             if (!flag) {
@@ -65,13 +69,13 @@ public class SystemConfig {
             }
         }
 
-        File userConfigFile = new File(appDir, APP_CONFIG_NAME);
+        File userConfigFile = new File(appDir, APP_CONFIG_NAME); // 查找appDir目录中的APP_CONFIG_NAME配置文件
         ClassLoader classLoader = SystemConfig.class.getClassLoader();
         if (userConfigFile.exists()) {
             logger.info("配置文件已经存在，直接使用。");
         } else {
             logger.info("用户目录不存在配置文件，拷贝一份过去。");
-            try (InputStream inputStream = classLoader.getResourceAsStream(APP_CONFIG_NAME)) {
+            try (InputStream inputStream = classLoader.getResourceAsStream(APP_CONFIG_NAME)) { // 读取jar包中的默认配置文件
                 if (inputStream != null) {
                     FileUtils.copyToFile(inputStream, userConfigFile);
                 } else {
@@ -102,7 +106,9 @@ public class SystemConfig {
                 new FileInputStream(userConfigFile), StandardCharsets.UTF_8)
         ) {
             Properties cacheSystemConfig = new Properties();
+            // 解析默认配置文件
             cacheSystemConfig.load(reader);
+            // 取得默认配置中key=SystemConfigPath的值，表示用户配置的路径
             userPropertiesPath = cacheSystemConfig.getProperty("SystemConfigPath");
             logger.info("SystemConfigPath={}", userPropertiesPath);
         } catch (Exception e) {
@@ -147,6 +153,7 @@ public class SystemConfig {
         // 4.加载核心配置
         Properties coreProperties = new Properties();
         try (InputStreamReader reader = new InputStreamReader(
+                // 从ClassPath中获取核心配置
                 Objects.requireNonNull(classLoader.getResourceAsStream(CORE_PROPERTIES)),
                 StandardCharsets.UTF_8)) {
             coreProperties.load(reader);
@@ -169,6 +176,7 @@ public class SystemConfig {
 
         // 5.合并配置
         try {
+            // 合并核心配置
             properties.putAll(coreProperties);
             logger.info("合并了核心配置");
 
@@ -191,7 +199,7 @@ public class SystemConfig {
     }
 
     /**
-     * 获取字符串值
+     * 获取配置中的字符串值
      * @param key 键
      * @return 系统值
      */
@@ -200,7 +208,7 @@ public class SystemConfig {
     }
 
     /**
-     * 获取int值
+     * 获取配置中的int值
      * @param key 键
      * @return 系统值
      */
@@ -214,7 +222,7 @@ public class SystemConfig {
     }
 
     /**
-     * 获取double值
+     * 获取配置中的double值
      * @param key 键
      * @return 系统值
      */
@@ -227,22 +235,41 @@ public class SystemConfig {
         }
     }
 
+    /**
+     * 更新用户配置的路径
+     * @param propFilePath
+     * @throws IOException
+     */
     public static void update(String propFilePath) throws IOException {
+        // "SystemConfigPath=propFilePath"
         String conf = "SystemConfigPath=" + propFilePath;
+        // 用户主路径下的配置目录
         File appDir = new File(System.getProperty("user.home"), APP_CONFIG_DIR_PATH);
+        // 配置目录下的APP_CONFIG_NAME配置文件
         File systemConfigFile = new File(appDir, APP_CONFIG_NAME);
+        // 将用户输入的配置文件路径写入默认配置
         FileUtils.writeStringToFile(systemConfigFile, conf, StandardCharsets.UTF_8);
+        // 重新加载配置
         Properties userProperties = loadUserProperties(propFilePath);
+        // 合并用户配置
         mergeUserProperties(userProperties);
+        // 给用户的配置路径动态赋值
         USER_CONFIG_FILE_PATH = propFilePath;
     }
 
+    /**
+     * 加载用户配置
+     * @param propFilePath
+     * @return
+     * @throws IOException
+     */
     private static Properties loadUserProperties(String propFilePath) throws IOException {
         Properties userProperties = new Properties();
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(propFilePath), StandardCharsets.UTF_8)) {
             userProperties.load(reader);
             logger.info("用户配置加载成功");
 
+            // 获取用户配置中所有的key
             Set<Object> keySet = userProperties.keySet();
             for (Object key : keySet) {
                 logger.info("{}={}", key, userProperties.get(key));
@@ -251,6 +278,10 @@ public class SystemConfig {
         return userProperties;
     }
 
+    /**
+     * 合并用户配置
+     * @param userProperties
+     */
     private static void mergeUserProperties(Properties userProperties) {
         Set<Object> keySet = userProperties.keySet();
         for (Object keyObj : keySet) {
@@ -258,6 +289,7 @@ public class SystemConfig {
             String[] split = key.split("[.]");
             String ns = split[0];
             boolean found = false;
+            // 查找用户是否配置了不可配置的内容, 找到的内容不进行合并
             for (int i = 0; i < EXCLUDE_NAMESPACE.length; i++) {
                 if (EXCLUDE_NAMESPACE[i].equals(ns)) {
                     found = true;

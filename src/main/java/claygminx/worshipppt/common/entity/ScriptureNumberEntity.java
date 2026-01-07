@@ -34,7 +34,7 @@ public class ScriptureNumberEntity {
 
     public ScriptureNumberEntity(String value) {
         if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("参数不可为空！");
+            throw new IllegalArgumentException("经文编号错误: 参数不可为空！");
         }
         this.value = value;
     }

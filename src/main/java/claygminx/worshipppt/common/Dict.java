@@ -119,9 +119,9 @@ public class Dict {
      * 敬拜模式
      */
     public static class WorshipModel {
-        public final static String WITHOUT_HOLY_COMMUNION = "无圣餐";
-        public final static String WITHIN_HOLY_COMMUNION = "有圣餐";
-        public final static String WITHIN_INITIATION = "有入会";
+        public final static String WITHOUT_HOLY_COMMUNION = "常规";
+        public final static String WITHIN_HOLY_COMMUNION = "圣餐";
+        public final static String WITHIN_INITIATION = "入会";
     }
 
     /**
