@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
 
 import static claygminx.worshipppt.common.Dict.*;
 
@@ -1007,7 +1008,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         tableBox.add(header);
 
         addTableColumn(header, "诗歌名称", POETRY_TABLE_COLUMN_WIDTH_1);
-        addTableColumn(header, "歌谱图的路径", POETRY_TABLE_COLUMN_WIDTH_2);
+        addTableColumn(header, "歌谱路径", POETRY_TABLE_COLUMN_WIDTH_2);
         addTableColumn(header, "操作", POETRY_TABLE_COLUMN_WIDTH_3);
     }
 
@@ -1044,7 +1045,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
         // 歌谱图的路径
         JTextField poetryDirectoryTextField = addTableInputTextCell(rowBox, POETRY_TABLE_COLUMN_WIDTH_2);
-        poetryDirectoryTextField.setToolTipText("该路径文件夹必须只包含此诗歌的歌谱图，歌谱图是用JP-WORD制作的");
+        poetryDirectoryTextField.setToolTipText("该路径文件夹必须只包含此诗歌的歌谱图，歌谱图是用JP-WORD制作的，支持拖拽文件夹");
         poetryDirectoryTextField.setTransferHandler(new TransferHandler() {
             @Override
             public boolean importData(JComponent comp, Transferable t) {
@@ -1055,7 +1056,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                         try {
                             Object o = t.getTransferData(DataFlavor.javaFileListFlavor);
                             String filePath = o.toString();
-                            logger.info(filePath);
+                            logger.debug(filePath);
 
                             if (filePath.startsWith("[")) {
                                 filePath = filePath.substring(1);
@@ -1063,15 +1064,28 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                             if (filePath.endsWith("]")) {
                                 filePath = filePath.substring(0, filePath.length() - 1);
                             }
-                            logger.info(filePath);
+                            logger.debug(filePath);
 
-                            File file = new File(filePath);
-                            String fileName = file.getName();
-
-                            poetryDirectoryTextField.setText(filePath);
-                            if (poetryNameTextField.getText() == null || poetryNameTextField.getText().trim().isEmpty()) {
-                                poetryNameTextField.setText(fileName);
+                            // 提取路径中的曲名，注意跨平台的兼容性
+                            String[] split = filePath.split(Pattern.quote(File.separator));
+                            String poetryName = "";
+                            for (String s : split) {
+                                if (s.contains("-")){
+                                    logger.info("poetryName = " + s);
+                                    StringBuilder stringBuilder = new StringBuilder();
+                                    stringBuilder.append("《").append((s.split("-")[1]).trim()).append("》");
+                                    poetryName = stringBuilder.toString();
+                                    break;
+                                }
                             }
+                            logger.debug("formatPoetryName = " + poetryName);
+                            // 填充曲名和路径
+                            poetryNameTextField.setText(poetryName);
+                            poetryDirectoryTextField.setText(filePath);
+                            // 当曲名栏有非空的字符时，再次拖拽是不会修改内容的，某些情况下未免不太方便，目前移除这一段代码
+//                            if (poetryNameTextField.getText() == null || poetryNameTextField.getText().trim().isEmpty()) {
+//                                poetryNameTextField.setText(fileName);
+//                            }
                         } catch (Exception e) {
                             logger.error("拖拽失败！", e);
                             JOptionPane.showMessageDialog(
