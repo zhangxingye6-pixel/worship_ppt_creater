@@ -77,7 +77,7 @@
         <worship-step name="圣餐诗歌标题" layout="圣餐-诗歌标题" class="claygminx.worshipppt.components.impl.HolyCommunionPoetryTitleStep" data="poetryContent.holyCommunionPoetryAlbum.poetryList"/>
         <worship-step name="圣餐诗歌" layout="圣餐-诗歌" class="claygminx.worshipppt.components.impl.HolyCommunionPoetryStep" data="poetryContent.holyCommunionPoetryAlbum.poetryList"/>
         <worship-step name="圣餐举饼祝谢" layout="圣餐-举饼祝谢" class="claygminx.worshipppt.components.impl.FixedStep"/>
-        <worship-step name="圣餐举饼祝谢" layout="圣餐-举饼祝谢" class="claygminx.worshipppt.components.impl.FixedStep"/>
+        <worship-step name="圣餐举饼祝谢" layout="圣餐-举杯祝谢" class="claygminx.worshipppt.components.impl.FixedStep"/>
         <worship-step name="圣餐自我省察" layout="圣餐-自我省察" class="claygminx.worshipppt.components.impl.FixedStep"/>
         <worship-step name="圣餐同领饼和杯" layout="圣餐-同领饼和杯" class="claygminx.worshipppt.components.impl.FixedStep"/>
         <worship-step name="圣餐祷告" layout="圣餐-祷告" class="claygminx.worshipppt.components.impl.FixedStep"/>
