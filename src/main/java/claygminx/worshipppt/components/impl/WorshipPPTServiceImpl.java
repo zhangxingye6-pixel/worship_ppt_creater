@@ -4,6 +4,7 @@ import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.WorshipEntity;
 import claygminx.worshipppt.components.*;
 import claygminx.worshipppt.exception.FileServiceException;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.SystemException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.common.Dict;
@@ -82,7 +83,9 @@ public class WorshipPPTServiceImpl implements WorshipPPTService {
             }
         } catch (FileServiceException | WorshipStepException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (PPTLayoutException e) {
+            throw new SystemException(e.getMessage(), e);
+        } catch (Exception e){
             throw new SystemException("出现未知错误！", e);
         }
 
