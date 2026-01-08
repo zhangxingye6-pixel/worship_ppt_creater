@@ -67,14 +67,16 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String readWorshipProcedureXml() throws FileServiceException {
+        // 获取xml配置的绝对路径
         String xmlPath = SystemConfig.getString(Dict.PPTProperty.GENERAL_PROCEDURE_XML_PATH);
+        // xml配置路径检查
         if (xmlPath == null || "".equals(xmlPath)) {
             throw new SystemException(Dict.PPTProperty.GENERAL_PROCEDURE_XML_PATH + "不可为空！");
         }
 
-        if (xmlPath.startsWith("classpath:")) {// 配置的是类路径
+        if (xmlPath.startsWith("classpath:")) {// 配置的是类路径，从jar包中读取
             ClassLoader classLoader = FileServiceImpl.class.getClassLoader();
-            String path = xmlPath.substring(10);
+            String path = xmlPath.substring(10);// 删除路径中的字串“classpath:”
             try (InputStream inputStream = Objects.requireNonNull(classLoader.getResourceAsStream(path));
                  Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
                 return internalReadWorshipProcedureXml(scanner);
@@ -91,14 +93,21 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    /**
+     * 内部读取XML配置
+     * @param scanner
+     * @return String格式的配置信息
+     */
     private String internalReadWorshipProcedureXml(Scanner scanner) {
-        logger.debug("开始一行行地读取XML");
+        logger.debug("开始逐行读取XML配置");
         StringBuilder stringBuilder = new StringBuilder();
         while (scanner.hasNextLine()) {
             String str = scanner.nextLine();
+            // 测试打印读取的配置
+            logger.debug("读取到XML配置: " + str);
             stringBuilder.append(str);
         }
-        logger.debug("读取完成");
+        logger.info("XML配置读取完成");
         return stringBuilder.toString();
     }
 }

@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
@@ -134,7 +133,6 @@ public class SystemConfig {
         // 3.加载用户配置
         Properties userProperties = null;
         try {
-            // TODO 用户配置的读取总是失败
             userProperties = loadUserProperties(userPropertiesPath);
         } catch (Exception e) {
             logger.error("用户配置加载失败！", e);
