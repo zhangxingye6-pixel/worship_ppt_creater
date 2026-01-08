@@ -18,6 +18,11 @@ public class UserConfigUtil {
      */
     private final static String USER_CONFIG_PATH = SystemConfig.USER_CONFIG_FILE_PATH;
 
+    /**
+     * 获取指定的用户自定义配置
+     * @param key
+     * @return
+     */
     public static String getUserConfig(String key) {
         // step1. 获取输入流
         try (InputStream configInputStream = getConfigInputStream(USER_CONFIG_PATH)) {
