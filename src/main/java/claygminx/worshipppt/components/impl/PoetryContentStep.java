@@ -4,8 +4,8 @@ import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.PoetryAlbumEntity;
 import claygminx.worshipppt.common.entity.PoetryContentEntity;
 import claygminx.worshipppt.common.entity.PoetryEntity;
-import claygminx.worshipppt.util.SizeUtil;
 import claygminx.worshipppt.common.Dict;
+import claygminx.worshipppt.util.TextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.poi.common.usermodel.fonts.FontGroup;
@@ -20,6 +20,9 @@ import java.util.List;
 public class PoetryContentStep extends AbstractWorshipStep {
 
     private final static Logger logger = LoggerFactory.getLogger(PoetryContentStep.class);
+    // 默认字号常量
+    private final static double TITLE_FONT_SIZE = 28.0;
+    private final static double POETRY_LIST_FONT_SIZE = 18.0;
 
     private final PoetryContentEntity poetryContentEntity;
 
@@ -38,10 +41,10 @@ public class PoetryContentStep extends AbstractWorshipStep {
         XSLFTable table = slide.createTable();
 
         logger.debug("初始化表格的尺寸");
-        double x = SizeUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_X)),
-                y = SizeUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_Y)),
-                w = SizeUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_W)),
-                h = SizeUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_H));
+        double x = TextUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_X)),
+               y = TextUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_Y)),
+               w = TextUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_W)),
+               h = TextUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_H));
         table.setAnchor(new Rectangle2D.Double(x, y, w, h));
 
         int colCount = SystemConfig.getInt(Dict.PPTProperty.POETRY_CONTENT_COL_COUNT);
@@ -87,13 +90,14 @@ public class PoetryContentStep extends AbstractWorshipStep {
             span.setBold(true);
             span.setFontFamily(getFontFamily(), FontGroup.LATIN);
             span.setFontFamily(getFontFamily(), FontGroup.EAST_ASIAN);
+            TextUtil.setScriptureFontColor(span, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
         }
     }
 
     private void makePoetryList(List<PoetryEntity> rightPoetryList, XSLFTableRow row) {
         XSLFTableCell cell = row.addCell();
         if (rightPoetryList != null) {
-            cell.setLeftInset(SizeUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_LEFT_INSET)));
+            cell.setLeftInset(TextUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_LEFT_INSET)));
             XSLFTextParagraph paragraph = cell.addNewTextParagraph();
             paragraph.setSpaceBefore(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_SPACE_BEFORE));// 段落前空出9磅的间距
             XSLFTextRun span = paragraph.addNewTextRun();
@@ -103,10 +107,10 @@ public class PoetryContentStep extends AbstractWorshipStep {
                 poetryBuilder.append(poetry.getName()).append("\n");
             }
             span.setText(poetryBuilder.toString());
-
             span.setFontSize(SystemConfig.getDouble(Dict.PPTProperty.POETRY_CONTENT_FONT_SIZE));
             span.setFontFamily(getFontFamily(), FontGroup.LATIN);
             span.setFontFamily(getFontFamily(), FontGroup.EAST_ASIAN);
+            TextUtil.setScriptureFontColor(span, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
         }
     }
 }

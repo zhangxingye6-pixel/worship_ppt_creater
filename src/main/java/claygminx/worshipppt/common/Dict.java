@@ -15,6 +15,9 @@ public class Dict {
         // 全局制作参数
         public final static String GENERAL_PROCEDURE_XML_PATH = "ppt.general.procedurePath";
         public final static String GENERAL_FONT_FAMILY = "ppt.general.fontFamily";
+        public final static String GENERAL_TITLE_FONT_SIZE = "ppt.general.titleSize";
+        public final static String GENERAL_SCRIPTURE_FONT_SIZE = "ppt.general.scriptureSize";
+
         public final static String GENERAL_PLACEHOLDER = "ppt.general.placeholder";
         public final static String GENERAL_LANGUAGE = "ppt.general.language";
         // 幻灯片母版
@@ -22,8 +25,13 @@ public class Dict {
         public final static String MASTER_INITIATION_FILE_PATH = "ppt.master.initiationFilePath";
         public final static String MASTER_GENERAL_LAYOUT_NAME = "ppt.master.generalLayout.name";
         public final static String MASTER_INITIATION_POETRY_SLIDE_ORDER = "ppt.master.initiation.poetrySlide.order";
+        // 宣召
+        public final static String SUMMON_SCRIPTURE_FONT_SIZE = "ppt.preachScripture.fontSize";
         // 赦罪
         public final static String FORGIVE_SINS_SCRIPTURE_LINE_SPACING = "ppt.forgiveSinsScripture.lineSpacing";
+        // 诗歌：封面
+        public final static String POETRY_TITLE_FONT_FAMILT = "ppt.poetryTitle.fontSize";
+        public final static String POETRY_TITLE_FONT_SIZE = "ppt.poetryTitle.fontFamily";
         // 诗歌：歌谱图
         public final static String POETRY_EXTENSION = "ppt.poetry.extension";
         public final static String POETRY_WIDTH = "ppt.poetry.width";
@@ -39,6 +47,8 @@ public class Dict {
         public final static String POETRY_CONTENT_FONT_SIZE = "ppt.poetryContent.fontSize";
         public final static String POETRY_CONTENT_LEFT_INSET = "ppt.poetryContent.leftInset";
         public final static String POETRY_CONTENT_SPACE_BEFORE = "ppt.poetryContent.spaceBefore";
+        // 读经
+        public final static String READING_SCRIPTURE_FONT_SIZE = "ppt.readingScripture.fontSize";
         // 圣餐：诗歌
         public final static String HOLY_COMMUNION_POETRY_TOP = "ppt.holyCommunion.poetry.top";
         // 圣餐：非会友领餐名单表格
@@ -48,10 +58,6 @@ public class Dict {
         public final static String HOLY_COMMUNION_NAME_LIST_H = "ppt.holyCommunion.nameList.h";
         public final static String HOLY_COMMUNION_NAME_LIST_COL_COUNT = "ppt.holyCommunion.nameList.colCount";
         public final static String HOLY_COMMUNION_NAME_LIST_FONT_SIZE = "ppt.holyCommunion.nameList.fontSize";
-        // 经文：文本颜色,需要使用ScriptureUtil中的方法解析
-        public final static int[] RGB_FONT_COLOR_BLUE = {45, 71, 209};
-        public final static int[] RGB_FONT_COLOR_RED = {239, 73, 15};
-        public final static int[] RGB_FONT_COLOR_BLACK = {64, 64, 64};
     }
 
     /**

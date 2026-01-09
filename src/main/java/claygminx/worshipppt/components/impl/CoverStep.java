@@ -3,6 +3,7 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.Dict;
 import claygminx.worshipppt.common.entity.CoverEntity;
 import claygminx.worshipppt.util.ScriptureUtil;
+import claygminx.worshipppt.util.TextUtil;
 import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,8 @@ import java.util.List;
 public class CoverStep extends AbstractWorshipStep {
 
     private final static Logger logger = LoggerFactory.getLogger(CoverStep.class);
+
+    private final static double DEFAULT_FONT_SIZE = 36.0;
 
     private final CoverEntity coverEntity;
 
@@ -31,15 +34,17 @@ public class CoverStep extends AbstractWorshipStep {
 
         // 设置敬拜日期文本和格式
         XSLFTextShape placeholder = coverSlide.getPlaceholder(0);
-        XSLFTextRun worshipDataTextRun = ScriptureUtil.clearAndCreateTextRun(placeholder);
+        XSLFTextRun worshipDataTextRun = TextUtil.clearAndCreateTextRun(placeholder);
         worshipDataTextRun.setText(coverEntity.getWorshipDate().trim());
-        ScriptureUtil.setScriptureFontColor(worshipDataTextRun, Dict.PPTProperty.RGB_FONT_COLOR_BLUE);
+        worshipDataTextRun.setFontSize(DEFAULT_FONT_SIZE);
+        TextUtil.setScriptureFontColor(worshipDataTextRun,  TextUtil.FontColor.RGB_FONT_COLOR_BLUE);
+
 
         if (coverEntity.getChurchName() != null) {
             placeholder = coverSlide.getPlaceholder(1);
-            XSLFTextRun churchNameTextRun = ScriptureUtil.clearAndCreateTextRun(placeholder);
+            XSLFTextRun churchNameTextRun = TextUtil.clearAndCreateTextRun(placeholder);
             churchNameTextRun.setText(coverEntity.getChurchName().trim());
-            ScriptureUtil.setScriptureFontColor(churchNameTextRun, Dict.PPTProperty.RGB_FONT_COLOR_BLACK);
+            TextUtil.setScriptureFontColor(churchNameTextRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
         }
         logger.info("封面幻灯片制作完成");
     }

@@ -7,13 +7,13 @@ import claygminx.worshipppt.components.ScriptureService;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.exception.ScriptureServiceException;
 import claygminx.worshipppt.exception.WorshipStepException;
+import claygminx.worshipppt.util.TextUtil;
 import claygminx.worshipppt.util.ScriptureUtil;
 import claygminx.worshipppt.common.Dict;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.poi.xslf.usermodel.*;
-
-import java.awt.*;
+import org.w3c.dom.Text;
 
 /**
  * 宣召阶段
@@ -24,6 +24,8 @@ public class SummonStep extends AbstractWorshipStep {
 
     private final String scriptureNumber;
     private final ScriptureService scriptureService;
+
+    private final static String STEP_NAME = "宣召";
 
     public SummonStep(XMLSlideShow ppt, String layout, ScriptureService scriptureService, String scriptureNumber) {
         super(ppt, layout);
@@ -51,26 +53,44 @@ public class SummonStep extends AbstractWorshipStep {
         XSLFSlideLayout layout = ppt.findLayout(getLayout());
         XSLFSlide slide = ppt.createSlide(layout);
 
+        // 宣召经文标题
         XSLFTextShape placeholder = slide.getPlaceholder(0);
-        placeholder.clearText();
-        placeholder.setText("【" + scriptureNumber + "】");
+        XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
+        titleTextRun.setFontSize(AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE);
+        titleTextRun.setText(new StringBuilder()
+                .append("【")
+                .append(scriptureNumber)
+                .append("】")
+                .toString()
+                .trim());
+        TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+
+        // 经文部分
+        double scriptureFontSize = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.SUMMON_SCRIPTURE_FONT_SIZE, AbstractWorshipStep.DEFAULT_SCRIPTURE_FONT_SIZE);
 
         placeholder = slide.getPlaceholder(1);
         placeholder.clearText();
         XSLFTextParagraph paragraph = placeholder.addNewTextParagraph();
         useCustomLanguage(paragraph);
-        XSLFTextRun span = paragraph.addNewTextRun();
-        span.setText("　　");
-        span = paragraph.addNewTextRun();
-        span.setText(scriptureEntity.getScripture());
+        // 制表符
+        XSLFTextRun scriptureTextRun = paragraph.addNewTextRun();
+        scriptureTextRun.setText("\t\t");
+        // 经文
+        scriptureTextRun = paragraph.addNewTextRun();
+        scriptureTextRun.setText(scriptureEntity.getScripture());
+        scriptureTextRun.setFontSize(scriptureFontSize);
+        TextUtil.setScriptureFontColor(scriptureTextRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+        // 第二段
         paragraph = placeholder.addNewTextParagraph();
-        span = paragraph.addNewTextRun();
-        span.setText("　　");
-        span = paragraph.addNewTextRun();
-        span.setText("我们当赞美耶和华！");
-        span.setBold(true);
-        span.setUnderlined(true);
-        span.setFontColor(Color.BLUE);
+        scriptureTextRun = paragraph.addNewTextRun();
+        scriptureTextRun.setText("\t\t");
+        // 回应
+        scriptureTextRun = paragraph.addNewTextRun();
+        scriptureTextRun.setText("我们当赞美耶和华！");
+        scriptureTextRun.setBold(true);
+        scriptureTextRun.setUnderlined(true);
+        scriptureTextRun.setFontSize(scriptureFontSize);
+        TextUtil.setScriptureFontColor(scriptureTextRun, TextUtil.FontColor.RGB_FONT_COLOR_BLUE);
 
         logger.info("宣召幻灯片制作完成");
     }
