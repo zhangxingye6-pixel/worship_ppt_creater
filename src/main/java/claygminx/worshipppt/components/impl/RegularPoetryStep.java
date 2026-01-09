@@ -7,6 +7,7 @@ import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.util.PictureUtil;
 import claygminx.worshipppt.util.SizeUtil;
 import claygminx.worshipppt.common.Dict;
+import org.apache.poi.sl.usermodel.TextParagraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.poi.xslf.usermodel.*;
@@ -22,6 +23,14 @@ import java.util.List;
  * 常规诗歌阶段
  */
 public class RegularPoetryStep extends AbstractWorshipStep {
+
+    /**
+     * 页码文本框的参数
+     */
+    private static final double FIX_LEFT = 375.0;       // 距左侧固定距离
+    private static final double FIX_TOP = 510.0;          // 距顶部固定距离（底部位置）
+    private static final double FIX_WIDTH = 210.0;      // 固定宽度
+    private static final double FIX_HEIGHT = 30.0;      // 固定高度
 
     private final static Logger logger = LoggerFactory.getLogger(RegularPoetryStep.class);
 
@@ -101,9 +110,9 @@ public class RegularPoetryStep extends AbstractWorshipStep {
             XSLFPictureData picData = ppt.addPicture(file, pictureType);
             XSLFPictureShape picture = slide.createPicture(picData);
             resizePicture(picture);
-            Rectangle2D anchor = picture.getAnchor();
-            double top = anchor.getMaxY();
-            setPageNumber(slide, files.length, i + 1, top);
+//            Rectangle2D anchor = picture.getAnchor();
+//            double top = anchor.getMaxY();
+            setPageNumber(slide, files.length, i + 1);
         }
     }
 
@@ -152,7 +161,7 @@ public class RegularPoetryStep extends AbstractWorshipStep {
     }
 
     /**
-     * 调整图片地尺寸
+     * 调整图片尺寸
      * <p>预设图片宽度是24.3厘米，但是程序的长度单位是磅，转换公式是 1磅=0.035275</p>
      * @param picture 简谱图片
      */
@@ -165,12 +174,33 @@ public class RegularPoetryStep extends AbstractWorshipStep {
         picture.setAnchor(new Rectangle2D.Double(left, top, width, width * ratio));
     }
 
-    private void setPageNumber(XSLFSlide slide, int totalCount, int current, double top) {
+    /**
+     * 设置页码，解决占位符移位的问题
+     * @param slide
+     * @param totalCount
+     * @param current
+     */
+    private void setPageNumber(XSLFSlide slide, int totalCount, int current) {
         XSLFTextShape placeholder = slide.getPlaceholder(0);
-        placeholder.clearText();
-        placeholder.setText(current + "/" + totalCount);
-        Rectangle2D anchor = placeholder.getAnchor();
-        placeholder.setAnchor(new Rectangle2D.Double(anchor.getX(), top, anchor.getWidth(), anchor.getHeight()));
+
+        // step1：删除原系统占位符
+        slide.removeShape(placeholder);
+        logger.info("敬拜诗歌占位符删除成功");
+        // step2：新建普通文本框(文本框不会移位)
+        XSLFTextBox fixedTextBox = slide.createTextBox();
+        // step3：强制设置固定坐标和大小
+        fixedTextBox.setAnchor(new Rectangle2D.Double(
+                FIX_LEFT, FIX_TOP, FIX_WIDTH, FIX_HEIGHT
+        ));
+        // step4：添加文本段落并设置格式
+        fixedTextBox.clearText();
+        XSLFTextParagraph paragraph = fixedTextBox.addNewTextParagraph();
+        XSLFTextRun textRun = paragraph.addNewTextRun();
+        paragraph.setTextAlign(TextParagraph.TextAlign.CENTER);
+        textRun.setText(current + "/" + totalCount);
+        textRun.setFontSize(25.0);      // 字号
+        textRun.setBold(true);          // 加粗
+
     }
 
 }
