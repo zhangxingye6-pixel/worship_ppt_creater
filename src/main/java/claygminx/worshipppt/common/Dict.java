@@ -48,6 +48,10 @@ public class Dict {
         public final static String HOLY_COMMUNION_NAME_LIST_H = "ppt.holyCommunion.nameList.h";
         public final static String HOLY_COMMUNION_NAME_LIST_COL_COUNT = "ppt.holyCommunion.nameList.colCount";
         public final static String HOLY_COMMUNION_NAME_LIST_FONT_SIZE = "ppt.holyCommunion.nameList.fontSize";
+        // 经文：文本颜色,需要使用ScriptureUtil中的方法解析
+        public final static int[] RGB_FONT_COLOR_BLUE = {45, 71, 209};
+        public final static int[] RGB_FONT_COLOR_RED = {239, 73, 15};
+        public final static int[] RGB_FONT_COLOR_BLACK = {64, 64, 64};
     }
 
     /**

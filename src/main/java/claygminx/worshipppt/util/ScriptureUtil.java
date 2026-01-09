@@ -5,9 +5,12 @@ import claygminx.worshipppt.common.entity.ScriptureNumberEntity;
 import claygminx.worshipppt.common.entity.ScriptureSectionEntity;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.common.Dict;
+import org.apache.poi.xslf.usermodel.XSLFTextRun;
+import org.apache.poi.xslf.usermodel.XSLFTextShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +26,7 @@ public class ScriptureUtil {
 
     /**
      * 解析可能带有多卷的经文编号
+     *
      * @param arg 经文编号
      * @return 经文编号实体列表
      * @throws IllegalArgumentException 若参数为空，抛出此异常
@@ -81,7 +85,7 @@ public class ScriptureUtil {
         int sectionsStartIndex = -1;
         // 找到首个出现数字的位置
         // 应从第二个字符开始，因为通常而言，第一个字符是书卷名称的一部分
-        for (int i  = 1; i < chars.length; i++) {
+        for (int i = 1; i < chars.length; i++) {
             char c = chars[i];
             if (c >= '1' && c <= '9') {
                 sectionsStartIndex = i;
@@ -117,6 +121,7 @@ public class ScriptureUtil {
      *     <li>短横线（-）既可以连接章和章，也可以连接节和节，不可以连接章和节；</li>
      *     <li>冒号（:）仅能连接章和节，左边是章，右边是节。</li>
      * </ol>
+     *
      * @param sections 字符串形式的章节
      * @return 章节列表
      * @throws ScriptureNumberException 若给定参数不符合经文编号格式，抛出此异常
@@ -135,7 +140,7 @@ public class ScriptureUtil {
             // 处理新增的三种包含箭头->的类型
             if (splitItem.contains("->")) {
                 parseSectionWithArrow(splitItem, sectionList);
-            } else if  (splitItem.contains(":")) {
+            } else if (splitItem.contains(":")) {
                 parseSectionWithColon(splitItem, sectionList);
                 // 将标记改为verse, 因为输入的章节编号是人为有序的，在上一个条件处理完章号之后，后面的数字是节号
                 currentType = "verse";
@@ -192,7 +197,7 @@ public class ScriptureUtil {
                 // 是中间章节, 将节列表置空表示全章节
                 scriptureSectionEntity.setVerses(null);
             } else if (i == endChapter) {
-                if (split[1].contains(";")){
+                if (split[1].contains(";")) {
                     scriptureSectionEntity.setStatusFromStartOfChapter();
                     verses.add(Integer.parseInt(split[1].split(":")[1]));
                 }
@@ -204,6 +209,7 @@ public class ScriptureUtil {
 
     /**
      * 精简经文
+     *
      * @param scripture 未精简的经文
      * @return 精简后的经文
      */
@@ -215,7 +221,8 @@ public class ScriptureUtil {
 
     /**
      * 解析由冒号（:）连接的章节
-     * @param sections 章节
+     *
+     * @param sections    章节
      * @param sectionList 章节列表
      * @throws ScriptureNumberException 若章节格式不是“章:节”或"章:节-节"，则抛出此异常
      */
@@ -254,8 +261,9 @@ public class ScriptureUtil {
 
     /**
      * 将章号或节号添加到列表
-     * @param digit 字符串形式的章号，或节号
-     * @param type chapter，或verse
+     *
+     * @param digit       字符串形式的章号，或节号
+     * @param type        chapter，或verse
      * @param sectionList 章节列表
      * @throws ScriptureNumberException 若{@code digit}不是整型数字，则抛出此异常
      */
@@ -303,8 +311,9 @@ public class ScriptureUtil {
 
     /**
      * 将章节添加到列表中
-     * @param n 章号，或节号
-     * @param type chapter，或verse
+     *
+     * @param n           章号，或节号
+     * @param type        chapter，或verse
      * @param sectionList 章节列表
      */
     private static void addSection(int n, String type, List<ScriptureSectionEntity> sectionList) {
@@ -327,4 +336,30 @@ public class ScriptureUtil {
         }
     }
 
+    /**
+     * 设置文本段的经文字体颜色
+     *
+     * @param textRun 文本段对象
+     * @param rgbs    RGB颜色数组
+     * @return
+     */
+    public static void setScriptureFontColor(XSLFTextRun textRun, int[] rgbs) {
+        // 参数校验
+        if (textRun == null) {
+            logger.info("未找到指定文本框，经文字体颜色设置失败");
+            return;
+        }
+        textRun.setFontColor(new Color(rgbs[0], rgbs[1], rgbs[2]));
+        logger.info("经文字体颜色设置成功");
+    }
+
+    /**
+     * 清除占位符，并通过占位符创建单独的文字段
+     * @param placeholder
+     * @return 创建的textRun对象
+     */
+    public static XSLFTextRun clearAndCreateTextRun(XSLFTextShape placeholder){
+        placeholder.clearText();
+        return placeholder.addNewTextParagraph().addNewTextRun();
+    }
 }

@@ -6,6 +6,7 @@ import claygminx.worshipppt.components.ScriptureService;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.common.Dict;
+import claygminx.worshipppt.util.ScriptureUtil;
 import claygminx.worshipppt.util.UserConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,32 +103,15 @@ public class ReadingScriptureStep extends AbstractWorshipStep {
             // 对不同的经节设置不同的字体颜色
             if (trimScriptureItem.startsWith("会众：")) {
                 // 会众读经：蓝色
-<<<<<<< HEAD
-                textRun.setFontColor(Color.BLUE);
-=======
-                textRun.setFontColor(new Color(45, 71, 209));
->>>>>>> Lazarus
+                ScriptureUtil.setScriptureFontColor(textRun, Dict.PPTProperty.RGB_FONT_COLOR_BLUE);
             } else if (trimScriptureItem.startsWith("主领：")) {
                 // 主领读经：黑色
-                textRun.setFontColor(Color.BLACK);
+                ScriptureUtil.setScriptureFontColor(textRun, Dict.PPTProperty.RGB_FONT_COLOR_BLACK);
             } else {
                 // 合读部分：红色
-<<<<<<< HEAD
-                textRun.setFontColor(new Color(208, 15, 15));
+                ScriptureUtil.setScriptureFontColor(textRun, Dict.PPTProperty.RGB_FONT_COLOR_RED);
             }
-            // 控制幻灯片里经文的数量和幻灯片的数量
-            int currentHeight = (int) Math.ceil(placeholder.getTextHeight());// 当前文本框的高度
-            int n = (int) Math.ceil((double) trimScriptureItem.length() / MAX_CHAR_COUNT);// 此节经文可能展示为多少行
-            lineCount += n;
-            if (currentHeight >= BEST_HEIGHT || lineCount >= BEST_LINE_COUNT) {
-                if (i < scriptureArray.length - 2) {
-                    logger.debug("当前幻灯片有{}个段落，应该有{}行", placeholder.getTextParagraphs().size(), lineCount);
-                    lineCount = 0;
-                }
-=======
-                textRun.setFontColor(new Color(239, 73, 15));
->>>>>>> Lazarus
-            }
+
             // 控制幻灯片里经文的数量和幻灯片的数量 动态控制时使用
 //            int currentHeight = (int) Math.ceil(placeholder.getTextHeight());// 当前文本框的高度
 //            int n = (int) Math.ceil((double) trimScriptureItem.length() / MAX_CHAR_COUNT);// 此节经文可能展示为多少行
