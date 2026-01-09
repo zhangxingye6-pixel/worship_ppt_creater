@@ -43,21 +43,34 @@ public class ForgiveSinsScriptureStep extends AbstractWorshipStep {
         XSLFSlideLayout layout = ppt.findLayout(getLayout());
         XSLFSlide slide = ppt.createSlide(layout);
 
+        // 赦罪经文标题
         XSLFTextShape placeholder = slide.getPlaceholder(0);
         placeholder.clearText();
         placeholder.setText(titleAndScripture[0]);
 
+        // 赦罪经文
         placeholder = slide.getPlaceholder(1);
         List<XSLFTextParagraph> paragraphs = placeholder.getTextParagraphs();
+        // 遍历占位符中的所有文本段落
+        boolean breakTag = false;
         for (XSLFTextParagraph paragraph : paragraphs) {
             List<XSLFTextRun> textRuns = paragraph.getTextRuns();
+            // 遍历当前文本段落中的所有文本段
             for (XSLFTextRun textRun : textRuns) {
                 String rawText = textRun.getRawText();
+                logger.info("赦罪：读取到文本段" + rawText);
+                if (rawText != null && rawText.contains("主领：")){
+                    ScriptureUtil.setScriptureFontColor(textRun, Dict.PPTProperty.RGB_FONT_COLOR_RED);
+                }
                 if (rawText != null && rawText.contains(getCustomPlaceholder())) {
                     textRun.setText(rawText.replace(getCustomPlaceholder(), titleAndScripture[1]));
                     paragraph.setLineSpacing(SystemConfig.getDouble(Dict.PPTProperty.FORGIVE_SINS_SCRIPTURE_LINE_SPACING));
                     useCustomLanguage(paragraph);
-                    break;
+                    breakTag = true;
+                }
+                if (rawText != null && rawText.contains("会众：")){
+                    ScriptureUtil.setScriptureFontColor(textRun, Dict.PPTProperty.RGB_FONT_COLOR_BLUE);
+                    if (breakTag) break;
                 }
             }
         }

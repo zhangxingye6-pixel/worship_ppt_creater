@@ -7,6 +7,7 @@ import claygminx.worshipppt.common.entity.ScriptureEntity;
 import claygminx.worshipppt.components.ScriptureService;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.exception.WorshipStepException;
+import claygminx.worshipppt.util.ScriptureUtil;
 import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import java.awt.*;
  */
 public class PreachScriptureStep extends AbstractWorshipStep {
     // 文本参数
+    // TODO 修改经文页面布局
     private final static int BEST_LINE_COUNT = 8;       // 最佳行数
     private final static int BEST_HEIGHT = 400;         // 最佳高度
     private final static int MAX_CHAR_COUNT = 32;       // 每行最大字数
@@ -97,10 +99,10 @@ public class PreachScriptureStep extends AbstractWorshipStep {
             // 每一节的颜色不同，与读经颜色顺序保持一致，先蓝色后黑色
             if(i % 2 == 1){
                 // 奇数行，显示蓝色字体
-                textRun.setFontColor(Color.BLUE);
+                ScriptureUtil.setScriptureFontColor(textRun, Dict.PPTProperty.RGB_FONT_COLOR_BLUE);
             }else{
                 // 偶数行，显示黑色字体
-                textRun.setFontColor(Color.BLACK);
+                ScriptureUtil.setScriptureFontColor(textRun, Dict.PPTProperty.RGB_FONT_COLOR_BLACK);
             }
 
             // 控制幻灯片里经文的数量和幻灯片的数量
