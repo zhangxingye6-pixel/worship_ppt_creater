@@ -1444,15 +1444,16 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         String appDirPath = System.getProperty("user.home") + File.separator + SystemConfig.APP_CONFIG_DIR_PATH;
         File file = new File(appDirPath, WorshipEntity.class.getSimpleName());
         if (file.exists()) {
-            logger.debug("本地磁盘已经存在敬拜实体");
+            logger.debug("存在缓存的的敬拜实体序列化文件");
             if (file.delete()) {
-                logger.debug("已经删除了");
+                logger.debug("已删除缓存的的敬拜实体序列化文件");
             } else {
-                logger.warn("缓存敬拜实体文件删除失败！");
+                logger.warn("缓存的的敬拜实体序列化文件删除失败！");
                 return;
             }
         }
-
+        // 重新写入
+        logger.info("将要保存的敬拜实体信息：" + worshipEntity.toString());
         try (OutputStream os = new FileOutputStream(file);
             ObjectOutputStream oos = new ObjectOutputStream(os)) {
             oos.writeObject(worshipEntity);
@@ -1462,7 +1463,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
     }
 
     /**
-     * 从本地磁盘默认位置读取敬拜实体
+     * 从本地磁盘默认位置读取敬拜实体，填充面板
      * @return 敬拜实体
      */
     private WorshipEntity readWorshipEntity() {

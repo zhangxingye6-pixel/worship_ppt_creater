@@ -30,8 +30,8 @@ public class Dict {
         // 赦罪
         public final static String FORGIVE_SINS_SCRIPTURE_LINE_SPACING = "ppt.forgiveSinsScripture.lineSpacing";
         // 诗歌：封面
-        public final static String POETRY_TITLE_FONT_FAMILT = "ppt.poetryTitle.fontSize";
-        public final static String POETRY_TITLE_FONT_SIZE = "ppt.poetryTitle.fontFamily";
+        public final static String POETRY_TITLE_FONT_FAMILT = "ppt.poetryTitle.fontFamily";
+        public final static String POETRY_TITLE_FONT_SIZE = "ppt.poetryTitle.fontSize";
         // 诗歌：歌谱图
         public final static String POETRY_EXTENSION = "ppt.poetry.extension";
         public final static String POETRY_WIDTH = "ppt.poetry.width";
