@@ -1,11 +1,11 @@
 package claygminx.worshipppt.components.impl;
 
+import claygminx.worshipppt.common.Dict;
+import claygminx.worshipppt.common.config.SystemConfig;
+import claygminx.worshipppt.util.TextUtil;
+import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.poi.xslf.usermodel.XMLSlideShow;
-import org.apache.poi.xslf.usermodel.XSLFSlide;
-import org.apache.poi.xslf.usermodel.XSLFSlideLayout;
-import org.apache.poi.xslf.usermodel.XSLFTextShape;
 
 /**
  * 诗歌标题阶段
@@ -16,6 +16,9 @@ public class PoetryTitleStep extends AbstractWorshipStep {
 
     private final String slideName;
     private final String poetryName;
+
+    // 字体常量
+    private final double DEFAUL_TPORTRY_COVER_FONT_SIZE  = 55.0;
 
     public PoetryTitleStep(XMLSlideShow ppt, String layout, String slideName, String poetryName) {
         super(ppt, layout);
@@ -32,12 +35,17 @@ public class PoetryTitleStep extends AbstractWorshipStep {
         fillPlaceholder(slide, 0, slideName);
         fillPlaceholder(slide, 1, poetryName);
 
-        logger.info("诗歌标题幻灯片制作完成");
+        logger.info("诗歌标题 - 幻灯片制作完成");
     }
 
     private void fillPlaceholder(XSLFSlide slide, int idx, String text) {
         XSLFTextShape placeholder = slide.getPlaceholder(idx);
-        placeholder.clearText();
-        placeholder.setText(text);
+        XSLFTextRun textRun = TextUtil.clearAndCreateTextRun(placeholder);
+        textRun.setText(text.trim());
+        TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+        String fontStyle = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_FAMILT, DEFAULT_FONT_FAMILY);
+        textRun.setFontFamily(fontStyle);
+        textRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_SIZE, DEFAUL_TPORTRY_COVER_FONT_SIZE));
+
     }
 }

@@ -1,8 +1,8 @@
 package claygminx.worshipppt.components.impl;
 
 import claygminx.worshipppt.common.config.SystemConfig;
-import claygminx.worshipppt.util.SizeUtil;
 import claygminx.worshipppt.common.Dict;
+import claygminx.worshipppt.util.TextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.poi.common.usermodel.fonts.FontGroup;
@@ -40,10 +40,10 @@ public class HolyCommunionNameListStep extends AbstractWorshipStep {
         XSLFTable table = slide.createTable();
 
         logger.debug("初始化表格的尺寸");
-        double x = SizeUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.HOLY_COMMUNION_NAME_LIST_X)),
-                y = SizeUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.HOLY_COMMUNION_NAME_LIST_Y)),
-                w = SizeUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.HOLY_COMMUNION_NAME_LIST_W)),
-                h = SizeUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.HOLY_COMMUNION_NAME_LIST_H));
+        double x = TextUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.HOLY_COMMUNION_NAME_LIST_X)),
+                y = TextUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.HOLY_COMMUNION_NAME_LIST_Y)),
+                w = TextUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.HOLY_COMMUNION_NAME_LIST_W)),
+                h = TextUtil.convertToPoints(SystemConfig.getDouble(Dict.PPTProperty.HOLY_COMMUNION_NAME_LIST_H));
         table.setAnchor(new Rectangle2D.Double(x, y, w, h));
 
         int colCount = SystemConfig.getInt(Dict.PPTProperty.HOLY_COMMUNION_NAME_LIST_COL_COUNT);

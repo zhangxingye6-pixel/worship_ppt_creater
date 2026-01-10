@@ -4,8 +4,8 @@ import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.PoetryEntity;
 import claygminx.worshipppt.exception.SystemException;
 import claygminx.worshipppt.exception.WorshipStepException;
+import claygminx.worshipppt.util.TextUtil;
 import claygminx.worshipppt.util.PictureUtil;
-import claygminx.worshipppt.util.SizeUtil;
 import claygminx.worshipppt.common.Dict;
 import org.apache.poi.sl.usermodel.TextParagraph;
 import org.slf4j.Logger;
@@ -28,9 +28,10 @@ public class RegularPoetryStep extends AbstractWorshipStep {
      * 页码文本框的参数
      */
     private static final double FIX_LEFT = 375.0;       // 距左侧固定距离
-    private static final double FIX_TOP = 510.0;          // 距顶部固定距离（底部位置）
+    private static final double FIX_TOP = 510.0;        // 距顶部固定距离（底部位置）
     private static final double FIX_WIDTH = 210.0;      // 固定宽度
     private static final double FIX_HEIGHT = 30.0;      // 固定高度
+    private static final double PAGE_NUMBER_FONT_SIZE = 25.0;       // 页码字号
 
     private final static Logger logger = LoggerFactory.getLogger(RegularPoetryStep.class);
 
@@ -163,12 +164,13 @@ public class RegularPoetryStep extends AbstractWorshipStep {
     /**
      * 调整图片尺寸
      * <p>预设图片宽度是24.3厘米，但是程序的长度单位是磅，转换公式是 1磅=0.035275</p>
+     *
      * @param picture 简谱图片
      */
     private void resizePicture(XSLFPictureShape picture) {
-        double width = SizeUtil.convertToPoints(getPictureLength());
-        double left = SizeUtil.convertToPoints(getLeft());
-        double top = SizeUtil.convertToPoints(getTop());
+        double width = TextUtil.convertToPoints(getPictureLength());
+        double left = TextUtil.convertToPoints(getLeft());
+        double top = TextUtil.convertToPoints(getTop());
         Rectangle2D anchor = picture.getAnchor();
         double ratio = anchor.getHeight() / anchor.getWidth();// 保持宽高比
         picture.setAnchor(new Rectangle2D.Double(left, top, width, width * ratio));
@@ -176,6 +178,7 @@ public class RegularPoetryStep extends AbstractWorshipStep {
 
     /**
      * 设置页码，解决占位符移位的问题
+     *
      * @param slide
      * @param totalCount
      * @param current
@@ -198,8 +201,9 @@ public class RegularPoetryStep extends AbstractWorshipStep {
         XSLFTextRun textRun = paragraph.addNewTextRun();
         paragraph.setTextAlign(TextParagraph.TextAlign.CENTER);
         textRun.setText(current + "/" + totalCount);
-        textRun.setFontSize(25.0);      // 字号
+        textRun.setFontSize(PAGE_NUMBER_FONT_SIZE);      // 字号
         textRun.setBold(true);          // 加粗
+        TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
 
     }
 

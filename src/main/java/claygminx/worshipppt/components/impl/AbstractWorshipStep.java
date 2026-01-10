@@ -7,6 +7,7 @@ import claygminx.worshipppt.components.ScriptureService;
 import claygminx.worshipppt.components.WorshipStep;
 import claygminx.worshipppt.exception.ScriptureServiceException;
 import claygminx.worshipppt.common.Dict;
+import claygminx.worshipppt.util.TextUtil;
 import org.apache.poi.xslf.usermodel.*;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextCharacterProperties;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextParagraph;
@@ -25,6 +26,11 @@ public abstract class AbstractWorshipStep implements WorshipStep {
 
     private final XMLSlideShow ppt;
     private final String layout;
+
+    // 默认文本常量
+    public final static double DEFAULT_TITLE_FONT_SIZE = 40.0;
+    public final static double DEFAULT_SCRIPTURE_FONT_SIZE = 35.0;
+    public final static String DEFAULT_FONT_FAMILY = "微软雅黑";
 
     /**
      * 通用的构造器
@@ -77,12 +83,12 @@ public abstract class AbstractWorshipStep implements WorshipStep {
             if (!validateResult) {
                 throw new ScriptureServiceException("经文编号格式错误！");
             }
-            titleBuilder.append('【').append(scriptureNumberEntity.getValue()).append('】');
+            titleBuilder.append(scriptureNumberEntity.getValue());
             ScriptureEntity scriptureEntity = scriptureService.getScriptureWithFormat(scriptureNumberEntity, SystemConfig.getString(Dict.ScriptureProperty.FORMAT1));
             if (logger.isDebugEnabled()) {
                 logger.debug(scriptureEntity.toString());
             }
-            scriptureBuilder.append("　　").append(scriptureEntity.getScripture()).append('\n');
+            scriptureBuilder.append("\t\t").append(scriptureEntity.getScripture()).append('\n');
         }
         scriptureBuilder.setLength(scriptureBuilder.length() - 1);
         char lastChar = scriptureBuilder.charAt(scriptureBuilder.length() - 1);
@@ -105,17 +111,29 @@ public abstract class AbstractWorshipStep implements WorshipStep {
         XMLSlideShow ppt = getPpt();
         XSLFSlideLayout layout = ppt.findLayout(layoutName);
         XSLFSlide slide = ppt.createSlide(layout);
-
+        // 填充标题
         XSLFTextShape placeholder = slide.getPlaceholder(0);
-        placeholder.clearText();
-        placeholder.setText(titleAndScripture[0]);
+        XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
+        titleTextRun.setText(new StringBuilder()
+                .append("【")
+                .append(titleAndScripture[0])
+                .append("】")
+                .toString().trim());
+        TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+        double titleFontSize = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.GENERAL_TITLE_FONT_SIZE, DEFAULT_TITLE_FONT_SIZE);
+        titleTextRun.setFontSize(titleFontSize);
         if (logger.isDebugEnabled()) {
             logger.debug("填充标题：" + titleAndScripture[0]);
         }
 
+        // 填充经文
         placeholder = slide.getPlaceholder(1);
         placeholder.clearText();
-        placeholder.setText(titleAndScripture[1]);
+        XSLFTextRun scriptureTextRun = TextUtil.clearAndCreateTextRun(placeholder);
+        TextUtil.setScriptureFontColor(scriptureTextRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+        scriptureTextRun.setText(titleAndScripture[1]);
+        double scriptureFontSize = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.GENERAL_SCRIPTURE_FONT_SIZE, DEFAULT_SCRIPTURE_FONT_SIZE);
+        scriptureTextRun.setFontSize(scriptureFontSize);
         List<XSLFTextParagraph> paragraphs = placeholder.getTextParagraphs();
         for (XSLFTextParagraph paragraph : paragraphs) {
             useCustomLanguage(paragraph);

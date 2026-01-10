@@ -3,8 +3,11 @@ package claygminx.worshipppt.util;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.ScriptureNumberEntity;
 import claygminx.worshipppt.common.entity.ScriptureSectionEntity;
+import claygminx.worshipppt.components.impl.AbstractWorshipStep;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.common.Dict;
+import claygminx.worshipppt.exception.WorshipStepException;
+import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
 import org.apache.poi.xslf.usermodel.XSLFTextRun;
 import org.apache.poi.xslf.usermodel.XSLFTextShape;
 import org.slf4j.Logger;
@@ -334,32 +337,5 @@ public class ScriptureUtil {
             }
             verses.add(n);
         }
-    }
-
-    /**
-     * 设置文本段的经文字体颜色
-     *
-     * @param textRun 文本段对象
-     * @param rgbs    RGB颜色数组
-     * @return
-     */
-    public static void setScriptureFontColor(XSLFTextRun textRun, int[] rgbs) {
-        // 参数校验
-        if (textRun == null) {
-            logger.info("未找到指定文本框，经文字体颜色设置失败");
-            return;
-        }
-        textRun.setFontColor(new Color(rgbs[0], rgbs[1], rgbs[2]));
-        logger.info("经文字体颜色设置成功");
-    }
-
-    /**
-     * 清除占位符，并通过占位符创建单独的文字段
-     * @param placeholder
-     * @return 创建的textRun对象
-     */
-    public static XSLFTextRun clearAndCreateTextRun(XSLFTextShape placeholder){
-        placeholder.clearText();
-        return placeholder.addNewTextParagraph().addNewTextRun();
     }
 }

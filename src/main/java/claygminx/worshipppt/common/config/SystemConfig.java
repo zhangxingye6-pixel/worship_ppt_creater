@@ -208,13 +208,52 @@ public class SystemConfig {
     private SystemConfig() {
     }
 
+
+    /**
+     * 三个配置配重载方法，如果取不到配置中的自定义值，就返回默认值
+     * @param propertiesKey
+     * @param defaultConfig
+     * @return
+     */
+    public static String getUserConfigOrDefault(String propertiesKey, String defaultConfig){
+        String string = getString(defaultConfig);
+        if (string.isEmpty()){
+            logger.info("未获取到用户配置， 使用默认配置：" + defaultConfig);
+            return defaultConfig;
+        }
+        logger.info("获取到用户配置，使用自定义配置：" + string);
+        return string;
+    }
+    public static double getUserConfigOrDefault(String propertiesKey, double defaultConfig){
+        double doubleValue = getDouble(propertiesKey);
+        if (doubleValue == -1.0){
+            logger.info("未获取到用户配置， 使用默认配置：" + defaultConfig);
+            return defaultConfig;
+        }
+        logger.info("获取到用户配置，使用自定义配置：" + doubleValue);
+        return doubleValue;
+    }
+    public static int getUserConfigOrDefault(String propertiesKey, int defaultConfig){
+        int intValue = getInt(propertiesKey);
+        if (intValue == -1){
+            logger.info("未获取到用户配置， 使用默认配置：" + defaultConfig);
+            return defaultConfig;
+        }
+        logger.info("获取到用户配置，使用自定义配置：" + intValue);
+        return intValue;
+    }
+
     /**
      * 获取配置中的字符串值
      * @param key 键
      * @return 系统值
      */
     public static String getString(String key) {
-        return properties.getProperty(key);
+        String strValue = properties.getProperty(key);
+        if (strValue == null || strValue.isEmpty()){
+            return "";
+        }
+        return strValue;
     }
 
     /**
@@ -224,10 +263,13 @@ public class SystemConfig {
      */
     public static int getInt(String key) {
         String strValue = properties.getProperty(key);
+        if (strValue == null || strValue.isEmpty()){
+            return -1;
+        }
         try {
             return Integer.parseInt(strValue);
         } catch (Exception e) {
-            throw new SystemException("根据" + key + "获取int值失败！", e);
+            throw new SystemException("用户配置文件key = " + key + "获取int值失败！", e);
         }
     }
 
@@ -238,10 +280,13 @@ public class SystemConfig {
      */
     public static double getDouble(String key) {
         String strValue = properties.getProperty(key);
+        if (strValue == null || strValue.isEmpty()){
+            return -1.0;
+        }
         try {
             return Double.parseDouble(strValue);
         } catch (Exception e) {
-            throw new SystemException("根据" + key + "获取double值失败！", e);
+            throw new SystemException("用户配置中key = " + key + "获取double值失败！", e);
         }
     }
 

@@ -8,6 +8,7 @@ import claygminx.worshipppt.components.ScriptureService;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.util.ScriptureUtil;
+import claygminx.worshipppt.util.TextUtil;
 import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,10 +102,10 @@ public class PreachScriptureStep extends AbstractWorshipStep {
             // 每一节的颜色不同，与读经颜色顺序保持一致，先蓝色后黑色
             if(i % 2 == 1){
                 // 奇数行，显示蓝色字体
-                ScriptureUtil.setScriptureFontColor(textRun, Dict.PPTProperty.RGB_FONT_COLOR_BLUE);
+                TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLUE);
             }else{
                 // 偶数行，显示黑色字体
-                ScriptureUtil.setScriptureFontColor(textRun, Dict.PPTProperty.RGB_FONT_COLOR_BLACK);
+                TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
             }
 
             // 控制幻灯片里经文的数量和幻灯片的数量
