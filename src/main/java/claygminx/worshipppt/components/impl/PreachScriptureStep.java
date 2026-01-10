@@ -77,12 +77,9 @@ public class PreachScriptureStep extends AbstractWorshipStep {
                 slide = ppt.createSlide(layout);
                 // 获取第一占位符（经文章节编号部分，不需要清空）
                 placeholder = slide.getPlaceholder(0);
-
-                // TODO 证道经文的布局需要再做调整
-
+                // TODO 需要在文字段中操作
                 String text = placeholder.getText();
                 // 将配置中的占位符替换为经文编号，其实直接setText就可以了
-                placeholder.setText(text.replace(getCustomPlaceholder().trim(), scriptureNumber));
                 placeholder.setText(text.replace(getCustomPlaceholder().trim(), scriptureNumber));
 
                 // 获取第二占位符（经文区域），并且清空，填充新的经文

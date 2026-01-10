@@ -45,7 +45,6 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
             throw new FileServiceException("XML读取失败！", e);
         }
 
-        // TODO 添加模板完整性检查
         // 获取用户选择的敬拜模式（常规、圣餐、入会）
         CoverEntity cover = worshipEntity.getCover();
         String model = cover.getModel();

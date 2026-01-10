@@ -18,7 +18,8 @@ public class PoetryTitleStep extends AbstractWorshipStep {
     private final String poetryName;
 
     // 字体常量
-    private final double DEFAUL_TPORTRY_COVER_FONT_SIZE  = 55.0;
+    private final double DEFAULT_POETRY_COVER_FONT_SIZE  = 55.0;
+    private final double DEFAULT_POETRY_TITLE_FONT_SIZE = 40.0;
 
     public PoetryTitleStep(XMLSlideShow ppt, String layout, String slideName, String poetryName) {
         super(ppt, layout);
@@ -45,7 +46,12 @@ public class PoetryTitleStep extends AbstractWorshipStep {
         TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
         String fontStyle = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_FAMILT, DEFAULT_FONT_FAMILY);
         textRun.setFontFamily(fontStyle);
-        textRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_SIZE, DEFAUL_TPORTRY_COVER_FONT_SIZE));
+        if (idx == 1){  // 制作诗歌封面
+            textRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_SIZE, DEFAULT_POETRY_COVER_FONT_SIZE));
+        }else {     // 制作诗歌标题
+            textRun.setFontSize(DEFAULT_POETRY_TITLE_FONT_SIZE);
+        }
+
 
     }
 }
