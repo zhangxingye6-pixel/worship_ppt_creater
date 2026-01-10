@@ -933,24 +933,24 @@ public class WorshipFormServiceImpl implements WorshipFormService {
     }
 
     // 根据名称获取诗歌集
-    private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
+private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
         PoetryContentEntity content = worshipEntity.getPoetryContent();
         if (content != null) {
             switch (name) {
 
-                case PoetryAlbumName.PRAY_POETRY -> content.getPrayPoetryAlbum();
+                case PoetryAlbumName.PRAY_POETRY -> { return content.getPrayPoetryAlbum(); }
 
-                case PoetryAlbumName.PRACTISE_POETRY -> content.getPractisePoetryAlbum();
+                case PoetryAlbumName.PRACTISE_POETRY -> { return content.getPractisePoetryAlbum(); }
 
-                case PoetryAlbumName.WORSHIP_POETRY -> content.getWorshipPoetryAlbum();
+                case PoetryAlbumName.WORSHIP_POETRY -> { return content.getWorshipPoetryAlbum(); }
 
-                case PoetryAlbumName.RESPONSE_POETRY -> content.getResponsePoetryAlbum();
+                case PoetryAlbumName.RESPONSE_POETRY -> { return content.getResponsePoetryAlbum(); }
 
-                case PoetryAlbumName.OFFERTORY_POETRY -> content.getOffertoryPoetryAlbum();
+                case PoetryAlbumName.OFFERTORY_POETRY -> { return content.getOffertoryPoetryAlbum(); }
 
-                case PoetryAlbumName.HOLY_COMMUNION_POETRY -> content.getHolyCommunionPoetryAlbum();
+                case PoetryAlbumName.HOLY_COMMUNION_POETRY -> { return content.getHolyCommunionPoetryAlbum(); }
 
-                default -> content.getInitiationPoetryAlbum();
+                default -> { return content.getInitiationPoetryAlbum(); }
             }
         }
         return null;
