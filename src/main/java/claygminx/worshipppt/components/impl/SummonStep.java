@@ -74,7 +74,7 @@ public class SummonStep extends AbstractWorshipStep {
         useCustomLanguage(paragraph);
         // 制表符
         XSLFTextRun scriptureTextRun = paragraph.addNewTextRun();
-        scriptureTextRun.setText("\t\t");
+        scriptureTextRun.setText("\t");
         // 经文
         scriptureTextRun = paragraph.addNewTextRun();
         scriptureTextRun.setText(scriptureEntity.getScripture());
@@ -83,7 +83,7 @@ public class SummonStep extends AbstractWorshipStep {
         // 第二段
         paragraph = placeholder.addNewTextParagraph();
         scriptureTextRun = paragraph.addNewTextRun();
-        scriptureTextRun.setText("\t\t");
+        scriptureTextRun.setText("\t");
         // 回应
         scriptureTextRun = paragraph.addNewTextRun();
         scriptureTextRun.setText("我们当赞美耶和华！");

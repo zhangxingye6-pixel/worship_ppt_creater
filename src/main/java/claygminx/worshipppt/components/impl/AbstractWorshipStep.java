@@ -88,7 +88,7 @@ public abstract class AbstractWorshipStep implements WorshipStep {
             if (logger.isDebugEnabled()) {
                 logger.debug(scriptureEntity.toString());
             }
-            scriptureBuilder.append("\t\t").append(scriptureEntity.getScripture()).append('\n');
+            scriptureBuilder.append("\t").append(scriptureEntity.getScripture()).append('\n');
         }
         scriptureBuilder.setLength(scriptureBuilder.length() - 1);
         char lastChar = scriptureBuilder.charAt(scriptureBuilder.length() - 1);
