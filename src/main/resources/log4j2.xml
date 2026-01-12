@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
+<!--配置文件热修改，30s扫描一次-->
+<configuration scan="true" scanPeriod="30 seconds">
     <properties>
         <!--日志输出位置-->
         <property name="LOG_HOME">${sys:user.home}/.worship-ppt</property>
+        <!--配置文件路径，配置文件不存在时不报错，使用默认值-->
+        <property file="config/worship-ppt.config" optional="true"/>
+        <!--如果外部配置中log.level.file不存在，默认使用INFO兜底-->
+        <property name="LOG_FILE_LEVEL" value="${log.level.file:-INFO}"/>
     </properties>
 
     <Appenders>
@@ -36,7 +41,8 @@
         <!-- 根日志设置 -->
         <Root level="INFO">
             <AppenderRef ref="CONSOLE" level="INFO"/>
-            <AppenderRef ref="FILE-APPENDER" level="INFO"/>
+            <!--LOG_FILE_LEVEL替换-->
+            <AppenderRef ref="FILE-APPENDER" level="${LOG_FILE_LEVEL}"/>
         </Root>
 
         <!-- apache -->
