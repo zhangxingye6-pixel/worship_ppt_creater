@@ -131,6 +131,7 @@ public class RegularPoetryStep extends AbstractWorshipStep {
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException("[" + directory.getAbsolutePath() + "]不是文件夹！");
         }
+        // 在
     }
 
     /**
@@ -177,8 +178,8 @@ public class RegularPoetryStep extends AbstractWorshipStep {
     }
 
     /**
-     * 设置页码，解决占位符移位的问题
-     *
+     * 设置页码
+     * 将占位符替换为文本框，不可被移动
      * @param slide
      * @param totalCount
      * @param current

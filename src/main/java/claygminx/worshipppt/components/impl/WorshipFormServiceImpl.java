@@ -1,5 +1,6 @@
 package claygminx.worshipppt.components.impl;
 
+import claygminx.worshipppt.common.Dict;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.components.*;
 import claygminx.worshipppt.exception.FileServiceException;
@@ -89,6 +90,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 获取表单服务实例
+     *
      * @return 表单服务实例
      */
     public static WorshipFormService getInstance() {
@@ -289,6 +291,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 添加敬拜模式单选框
+     *
      * @param rootBox 单选框
      */
     private void addWorshipModelPanel(Box rootBox) {
@@ -328,6 +331,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 添加封面
+     *
      * @param rootBox 根容器
      */
     private void addCoverPanel(Box rootBox) {
@@ -355,10 +359,11 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 添加所有的诗歌集面板
+     *
      * @param rootBox 根容器
      */
     private void addAllPoetryAlbumPanel(Box rootBox) {
-        String[] albumNames = new String[] {
+        String[] albumNames = new String[]{
                 PoetryAlbumName.PRAY_POETRY, PoetryAlbumName.PRACTISE_POETRY, PoetryAlbumName.WORSHIP_POETRY,
                 PoetryAlbumName.RESPONSE_POETRY, PoetryAlbumName.OFFERTORY_POETRY,
                 PoetryAlbumName.HOLY_COMMUNION_POETRY, PoetryAlbumName.INITIATION_POETRY
@@ -371,8 +376,9 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 添加一个指定诗歌集的面板
+     *
      * @param rootBox 根容器
-     * @param name 诗歌集的名称
+     * @param name    诗歌集的名称
      */
     private void addOnePoetryAlbumPanel(Box rootBox, String name) {
         Box tableBox = Box.createVerticalBox();
@@ -410,6 +416,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 添加经文面板
+     *
      * @param rootBox 根容器
      */
     private void addScripturePanel(Box rootBox) {
@@ -461,6 +468,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 添加宣信面板
+     *
      * @param rootBox 根容器
      */
     private void addDeclarationPanel(Box rootBox) {
@@ -492,6 +500,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 添加证道面板
+     *
      * @param rootBox 根容器
      */
     private void addPreachPanel(Box rootBox) {
@@ -522,6 +531,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 添加圣餐面板
+     *
      * @param rootBox 根容器
      */
     private void addHolyCommunionPanel(Box rootBox) {
@@ -548,6 +558,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 添加家事报告面板
+     *
      * @param rootBox 根容器
      */
     private void addFamilyReportsPanel(Box rootBox) {
@@ -583,6 +594,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 添加提交按钮
+     *
      * @param rootBox 根盒子
      */
     private void addSubmitPanel(Box rootBox) {
@@ -663,16 +675,17 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     /**
      * 提交之前检查数据
+     *
      * @return 是否检查通过
      */
     private boolean prepare() {
         return prepareCover() && preparePoetry() && prepareScriptureContent() && prepareDeclaration()
                 && preparePreach() && prepareFamilyReport() && prepareHolyCommunion();
     }
-    
+
     private boolean prepareCover() {
         logger.debug("检查封面信息...");
-        
+
         String selectedModel = null;
         Enumeration<AbstractButton> radioElements = modelRadioGroup.getElements();
         while (radioElements.hasMoreElements()) {
@@ -694,103 +707,163 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         if (isEmpty(churchName)) {
             logger.warn("未输入教会名称！");
         }
-        
+
         CoverEntity cover = new CoverEntity();
         cover.setModel(selectedModel);
         cover.setWorshipDate(worshipDate);
         cover.setChurchName(churchName);
         worshipEntity.setCover(cover);
-        
+
         return true;
     }
-    
+
     private boolean preparePoetry() {
         logger.debug("检查诗歌...");
-        
+
         String selectedModel = worshipEntity.getCover().getModel();
         PoetryContentEntity poetryContentEntity = new PoetryContentEntity();
         worshipEntity.setPoetryContent(poetryContentEntity);
-        
+
+        StringBuilder stringBuilder = new StringBuilder();
+        // 将7个诗歌面板的检查信息一并返回，防止程序中断导致PrayPoetryAlbum对象成员为null
         List<JTextField[]> prayTextFieldsList = poetryListMap.get(PoetryAlbumName.PRAY_POETRY);
         String message = checkPoetryInfo(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList, 0);
         if (message != null) {
-            warn(message);
-            return false;
-        } else {
-            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList);
-            poetryContentEntity.setPrayPoetryAlbum(album);
+            stringBuilder.append(message);
+
         }
-        
+        PoetryAlbumEntity prayPoetryAlbum = readPoetryAlbum(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList);
+        poetryContentEntity.setPrayPoetryAlbum(prayPoetryAlbum);
+
+
         List<JTextField[]> practiseTextFieldsList = poetryListMap.get(PoetryAlbumName.PRACTISE_POETRY);
         message = checkPoetryInfo(PoetryAlbumName.PRACTISE_POETRY, practiseTextFieldsList, 0);
         if (message != null) {
-            warn(message);
-            return false;
-        } else {
-            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.PRACTISE_POETRY, practiseTextFieldsList);
-            poetryContentEntity.setPractisePoetryAlbum(album);
+            stringBuilder.append(message);
         }
-        
+        PoetryAlbumEntity practisePoetryAlbum = readPoetryAlbum(PoetryAlbumName.PRACTISE_POETRY, practiseTextFieldsList);
+        poetryContentEntity.setPractisePoetryAlbum(practisePoetryAlbum);
+
+
         List<JTextField[]> worshipTextFieldsList = poetryListMap.get(PoetryAlbumName.WORSHIP_POETRY);
         message = checkPoetryInfo(PoetryAlbumName.WORSHIP_POETRY, worshipTextFieldsList, 2);
         if (message != null) {
-            warn(message);
-            return false;
-        } else {
-            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.WORSHIP_POETRY, worshipTextFieldsList);
-            poetryContentEntity.setWorshipPoetryAlbum(album);
+            stringBuilder.append(message);
         }
-        
+        PoetryAlbumEntity worshipPoetryAlbum = readPoetryAlbum(PoetryAlbumName.WORSHIP_POETRY, worshipTextFieldsList);
+        poetryContentEntity.setWorshipPoetryAlbum(worshipPoetryAlbum);
+
         List<JTextField[]> responseTextFieldsList = poetryListMap.get(PoetryAlbumName.RESPONSE_POETRY);
         message = checkPoetryInfo(PoetryAlbumName.RESPONSE_POETRY, responseTextFieldsList, 1);
         if (message != null) {
-            warn(message);
-            return false;
-        } else {
-            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.RESPONSE_POETRY, responseTextFieldsList);
-            poetryContentEntity.setResponsePoetryAlbum(album);
+            stringBuilder.append(message);
         }
-        
+            PoetryAlbumEntity responsePoetryAlbum = readPoetryAlbum(PoetryAlbumName.RESPONSE_POETRY, responseTextFieldsList);
+            poetryContentEntity.setResponsePoetryAlbum(responsePoetryAlbum);
+
+
         List<JTextField[]> offertoryTextFieldsList = poetryListMap.get(PoetryAlbumName.OFFERTORY_POETRY);
         message = checkPoetryInfo(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList, 1);
         if (message != null) {
-            warn(message);
-            return false;
-        } else {
-            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList);
-            poetryContentEntity.setOffertoryPoetryAlbum(album);
+            stringBuilder.append(message);
         }
-        
+            PoetryAlbumEntity offertoryPoetryAlbum = readPoetryAlbum(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList);
+            poetryContentEntity.setOffertoryPoetryAlbum(offertoryPoetryAlbum);
+
+
         if (WorshipModel.WITHIN_HOLY_COMMUNION.equals(selectedModel) || WorshipModel.WITHIN_INITIATION.equals(selectedModel)) {
             List<JTextField[]> holyCommunionTextFieldsList = poetryListMap.get(PoetryAlbumName.HOLY_COMMUNION_POETRY);
             message = checkPoetryInfo(PoetryAlbumName.HOLY_COMMUNION_POETRY, holyCommunionTextFieldsList, 1);
             if (message != null) {
-                warn(message);
-                return false;
-            } else {
-                PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.HOLY_COMMUNION_POETRY, holyCommunionTextFieldsList);
-                poetryContentEntity.setHolyCommunionPoetryAlbum(album);
+                stringBuilder.append(message);
             }
+            PoetryAlbumEntity holyCommunionPoetryAlbum = readPoetryAlbum(PoetryAlbumName.HOLY_COMMUNION_POETRY, holyCommunionTextFieldsList);
+            poetryContentEntity.setHolyCommunionPoetryAlbum(holyCommunionPoetryAlbum);
+
         }
-        
+//        List<JTextField[]> prayTextFieldsList = poetryListMap.get(PoetryAlbumName.PRAY_POETRY);
+//        String message = checkPoetryInfo(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList, 0);
+//        if (message != null) {
+//            warn(message);
+//            return false;
+//        } else {
+//            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList);
+//            poetryContentEntity.setPrayPoetryAlbum(album);
+//        }
+//
+//        List<JTextField[]> practiseTextFieldsList = poetryListMap.get(PoetryAlbumName.PRACTISE_POETRY);
+//        message = checkPoetryInfo(PoetryAlbumName.PRACTISE_POETRY, practiseTextFieldsList, 0);
+//        if (message != null) {
+//            warn(message);
+//            return false;
+//        } else {
+//            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.PRACTISE_POETRY, practiseTextFieldsList);
+//            poetryContentEntity.setPractisePoetryAlbum(album);
+//        }
+//
+//        List<JTextField[]> worshipTextFieldsList = poetryListMap.get(PoetryAlbumName.WORSHIP_POETRY);
+//        message = checkPoetryInfo(PoetryAlbumName.WORSHIP_POETRY, worshipTextFieldsList, 2);
+//        if (message != null) {
+//            warn(message);
+//            return false;
+//        } else {
+//            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.WORSHIP_POETRY, worshipTextFieldsList);
+//            poetryContentEntity.setWorshipPoetryAlbum(album);
+//        }
+//
+//        List<JTextField[]> responseTextFieldsList = poetryListMap.get(PoetryAlbumName.RESPONSE_POETRY);
+//        message = checkPoetryInfo(PoetryAlbumName.RESPONSE_POETRY, responseTextFieldsList, 1);
+//        if (message != null) {
+//            warn(message);
+//            return false;
+//        } else {
+//            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.RESPONSE_POETRY, responseTextFieldsList);
+//            poetryContentEntity.setResponsePoetryAlbum(album);
+//        }
+//
+//        List<JTextField[]> offertoryTextFieldsList = poetryListMap.get(PoetryAlbumName.OFFERTORY_POETRY);
+//        message = checkPoetryInfo(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList, 1);
+//        if (message != null) {
+//            warn(message);
+//            return false;
+//        } else {
+//            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList);
+//            poetryContentEntity.setOffertoryPoetryAlbum(album);
+//        }
+//
+//        if (WorshipModel.WITHIN_HOLY_COMMUNION.equals(selectedModel) || WorshipModel.WITHIN_INITIATION.equals(selectedModel)) {
+//            List<JTextField[]> holyCommunionTextFieldsList = poetryListMap.get(PoetryAlbumName.HOLY_COMMUNION_POETRY);
+//            message = checkPoetryInfo(PoetryAlbumName.HOLY_COMMUNION_POETRY, holyCommunionTextFieldsList, 1);
+//            if (message != null) {
+//                warn(message);
+//                return false;
+//            } else {
+//                PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.HOLY_COMMUNION_POETRY, holyCommunionTextFieldsList);
+//                poetryContentEntity.setHolyCommunionPoetryAlbum(album);
+//            }
+//        }
+
         if (WorshipModel.WITHIN_INITIATION.equals(selectedModel)) {
             List<JTextField[]> initiationTextFieldsList = poetryListMap.get(PoetryAlbumName.INITIATION_POETRY);
             message = checkPoetryInfo(PoetryAlbumName.INITIATION_POETRY, initiationTextFieldsList, 1);
             if (message != null) {
-                warn(message);
-                return false;
-            } else {
-                PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.INITIATION_POETRY, initiationTextFieldsList);
-                poetryContentEntity.setInitiationPoetryAlbum(album);
+                stringBuilder.append(message);
             }
+            PoetryAlbumEntity initiationPoetryAlbum = readPoetryAlbum(PoetryAlbumName.INITIATION_POETRY, initiationTextFieldsList);
+            poetryContentEntity.setInitiationPoetryAlbum(initiationPoetryAlbum);
         }
-        
+        if (!stringBuilder.isEmpty()){
+            // 在某个环节的面板填充有问题
+            warn(stringBuilder.toString());
+            return false;
+        }
+        // 中间环节没有发现问题
         return true;
     }
-    
+
     private boolean prepareScriptureContent() {
         logger.debug("检查经文...");
-        
+
         Set<String> keySet = scriptureContentTextFieldMap.keySet();
         for (String key : keySet) {
             JTextField textField = scriptureContentTextFieldMap.get(key);
@@ -808,13 +881,13 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         scriptureContentEntity.setPublicPray(scriptureContentTextFieldMap.get(ScriptureContentKey.PUBLIC_PRAY).getText().trim());
         scriptureContentEntity.setReadingScripture(scriptureContentTextFieldMap.get(ScriptureContentKey.READING_SCRIPTURE).getText().trim());
         worshipEntity.setScriptureContent(scriptureContentEntity);
-        
+
         return true;
     }
-    
+
     private boolean prepareDeclaration() {
         logger.debug("检查宣信...");
-        
+
         JTextField declarationTitleTextField = declarationTextFieldMap.get(DeclarationKey.TITLE);
         JTextField declarationSpeakerTextField = declarationTextFieldMap.get(DeclarationKey.SPEAKER);
         if (isEmpty(declarationTitleTextField.getText())) {
@@ -824,18 +897,18 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         if (isEmpty(declarationSpeakerTextField.getText())) {
             logger.warn("未输入讲员！");
         }
-        
+
         DeclarationEntity declaration = new DeclarationEntity();
         declaration.setTitle(declarationTitleTextField.getText().trim());
         declaration.setSpeaker(declarationSpeakerTextField.getText().trim());
         worshipEntity.setDeclaration(declaration);
-        
+
         return true;
     }
-    
+
     private boolean preparePreach() {
         logger.debug("检查证道...");
-        
+
         JTextField preachTitleTextField = preachTextFieldMap.get(PreachKey.TITLE);
         JTextField preachScriptureTextField = preachTextFieldMap.get(PreachKey.SCRIPTURE);
         if (isEmpty(preachTitleTextField.getText())) {
@@ -845,18 +918,18 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         if (isEmpty(preachScriptureTextField.getText())) {
             logger.warn("未输入证道经文！");
         }
-        
+
         PreachEntity preach = new PreachEntity();
         preach.setTitle(preachTitleTextField.getText().trim());
         preach.setScriptureNumber(preachScriptureTextField.getText().trim());
         worshipEntity.setPreach(preach);
-        
+
         return true;
     }
-    
+
     private boolean prepareFamilyReport() {
         logger.debug("检查家事报告...");
-        
+
         List<String> familyReports = new ArrayList<>();
         for (JTextField textField : familyReportsTextFieldList) {
             String item = textField.getText().trim();
@@ -864,12 +937,12 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                 familyReports.add(item);
             }
         }
-        
+
         worshipEntity.setFamilyReports(familyReports);
-        
+
         return true;
     }
-    
+
     private boolean prepareHolyCommunion() {
         logger.debug("检查圣餐...");
 
@@ -889,22 +962,70 @@ public class WorshipFormServiceImpl implements WorshipFormService {
             holyCommunionEntity.setNameList(nameList);
             worshipEntity.setHolyCommunion(holyCommunionEntity);
         }
-        
+
         return true;
     }
 
-    // 检查诗歌信息
+    /**
+     * 检查面板中的诗歌信息，如果无错误，会返回null
+     * 增加歌谱源文件夹校验，如果里面没有png文件会有提示
+     *
+     * @param albumName
+     * @param poetryTextFieldList
+     * @param minCount
+     * @return
+     */
     private String checkPoetryInfo(String albumName, List<JTextField[]> poetryTextFieldList, int minCount) {
+        // 当前使用环境不需要检查祷告诗歌
+        if (albumName.equals(PoetryAlbumName.PRAY_POETRY)) {
+            return null;
+        }
         int count = 0;
+        StringBuilder stringBuilder = new StringBuilder();
+        // 遍历当前albumName面板中的诗歌列表
         for (int i = 0; i < poetryTextFieldList.size(); i++) {
             JTextField[] textFields = poetryTextFieldList.get(i);
-            String name = textFields[0].getText(), directory = textFields[1].getText();
+            // 获取曲名栏目的字符串
+            String name = textFields[0].getText();
+            // 获取路径栏目的字符串
+            String directory = textFields[1].getText();
+
+            // 检查输入的完整性
             if (!isEmpty(name) && isEmpty(directory) || isEmpty(name) && !isEmpty(directory)) {
                 return albumName + "中第" + (i + 1) + "行诗歌输入不完整！";
             }
+            File dirFile = new File(directory);
+            if (dirFile.exists()) {
+                // 创建筛选指定后缀的过滤器
+                java.io.FileFilter fileFilter = new java.io.FileFilter() {
+                    @Override
+                    public boolean accept(File subFile) {
+                        boolean isFile = subFile.isFile();
+                        boolean isEndsWith = subFile.getName().endsWith(SystemConfig.getString(PPTProperty.POETRY_EXTENSION));
+                        return isFile && isEndsWith;
+                    }
+                };
+                File[] targetFiles = dirFile.listFiles(fileFilter);
+                if (targetFiles == null) {
+                    // 目录存在但没有读取权限或者目录异常
+                    stringBuilder.append(albumName + "中第" + (i + 1) + "行输入的文件夹无读取权限，无法检查歌谱文件\n");
+                } else if (targetFiles.length == 0) {
+                    // 目录存在但没有目标图谱文件
+                    stringBuilder.append(albumName + "中第" + (i + 1) + "行输入的文件夹中未找到指定后缀的歌谱文件\n");
+                }
+            } else {
+                // 目录不存在
+                stringBuilder.append(albumName + "中第" + (i + 1) + "行输入的路径中不存在\n");
+            }
+
+
             if (!isEmpty(name) && !isEmpty(directory)) {
                 count++;
             }
+        }
+        if (!stringBuilder.isEmpty()) {
+            // 有不满足的路径
+            return stringBuilder.toString();
         }
         logger.debug("向{}输入了{}首诗歌", albumName, count);
         if (count < minCount) {
@@ -933,24 +1054,38 @@ public class WorshipFormServiceImpl implements WorshipFormService {
     }
 
     // 根据名称获取诗歌集
-private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
+    private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
         PoetryContentEntity content = worshipEntity.getPoetryContent();
         if (content != null) {
             switch (name) {
 
-                case PoetryAlbumName.PRAY_POETRY -> { return content.getPrayPoetryAlbum(); }
+                case PoetryAlbumName.PRAY_POETRY -> {
+                    return content.getPrayPoetryAlbum();
+                }
 
-                case PoetryAlbumName.PRACTISE_POETRY -> { return content.getPractisePoetryAlbum(); }
+                case PoetryAlbumName.PRACTISE_POETRY -> {
+                    return content.getPractisePoetryAlbum();
+                }
 
-                case PoetryAlbumName.WORSHIP_POETRY -> { return content.getWorshipPoetryAlbum(); }
+                case PoetryAlbumName.WORSHIP_POETRY -> {
+                    return content.getWorshipPoetryAlbum();
+                }
 
-                case PoetryAlbumName.RESPONSE_POETRY -> { return content.getResponsePoetryAlbum(); }
+                case PoetryAlbumName.RESPONSE_POETRY -> {
+                    return content.getResponsePoetryAlbum();
+                }
 
-                case PoetryAlbumName.OFFERTORY_POETRY -> { return content.getOffertoryPoetryAlbum(); }
+                case PoetryAlbumName.OFFERTORY_POETRY -> {
+                    return content.getOffertoryPoetryAlbum();
+                }
 
-                case PoetryAlbumName.HOLY_COMMUNION_POETRY -> { return content.getHolyCommunionPoetryAlbum(); }
+                case PoetryAlbumName.HOLY_COMMUNION_POETRY -> {
+                    return content.getHolyCommunionPoetryAlbum();
+                }
 
-                default -> { return content.getInitiationPoetryAlbum(); }
+                default -> {
+                    return content.getInitiationPoetryAlbum();
+                }
             }
         }
         return null;
@@ -983,8 +1118,9 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 向表格添加标题
+     *
      * @param tableBox 表格
-     * @param title 标题
+     * @param title    标题
      */
     private void addTableTitle(Box tableBox, String title) {
         // 放置标题的Label，并居中显示
@@ -1001,6 +1137,7 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 向表格添加表头
+     *
      * @param tableBox 表格
      */
     private void addPoetryTableHeader(Box tableBox) {
@@ -1014,8 +1151,9 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 向诗歌集表格中指定的位置添加一行
-     * @param tableBox 表格
-     * @param albumName 列名
+     *
+     * @param tableBox    表格
+     * @param albumName   列名
      * @param poetryIndex 行索引，从0开始
      */
     private void addPoetryTableRow(Box tableBox, String albumName, int poetryIndex) {
@@ -1070,7 +1208,7 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
                             String[] split = filePath.split(Pattern.quote(File.separator));
                             String poetryName = "";
                             for (String s : split) {
-                                if (s.contains("-")){
+                                if (s.contains("-")) {
                                     logger.info("poetryName = " + s);
                                     StringBuilder stringBuilder = new StringBuilder();
                                     stringBuilder.append("《").append((s.split("-")[1]).trim()).append("》");
@@ -1118,7 +1256,7 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
             }
         });
 
-        JTextField[] textFieldArray = new JTextField[] {poetryNameTextField, poetryDirectoryTextField};
+        JTextField[] textFieldArray = new JTextField[]{poetryNameTextField, poetryDirectoryTextField};
         textFieldsList.add(poetryIndex, textFieldArray);
 
         // 操作按钮
@@ -1127,9 +1265,10 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 向表头添加列
-     * @param headerBox 表头
+     *
+     * @param headerBox  表头
      * @param columnName 列名
-     * @param width 列的宽度
+     * @param width      列的宽度
      */
     private void addTableColumn(Box headerBox, String columnName, int width) {
         JLabel label = new JLabel(columnName);
@@ -1151,8 +1290,9 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 向表格中的一行添加一个输入单元格
+     *
      * @param rowBox 表格中的一行
-     * @param width 宽度
+     * @param width  宽度
      * @return 文本框
      */
     private JTextField addTableInputTextCell(Box rowBox, int width) {
@@ -1166,7 +1306,8 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 向诗歌表格中指定行添加一个操作单元格
-     * @param rowBox 表格中的一行
+     *
+     * @param rowBox         表格中的一行
      * @param textFieldsList 诗歌列表
      */
     private void addPoetryTableOperationCell(Box rowBox, List<JTextField[]> textFieldsList) {
@@ -1181,7 +1322,8 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 添加一行输入
-     * @param tableBox 根容器箱子
+     *
+     * @param tableBox  根容器箱子
      * @param labelName 标签文本
      * @return 文本框
      */
@@ -1198,7 +1340,8 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 向常规表格中指定行添加输入标签
-     * @param rowBox 表格中的一行
+     *
+     * @param rowBox    表格中的一行
      * @param labelName 标签文本
      * @return 标签
      */
@@ -1210,7 +1353,8 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 添加家事报告面板添加一行
-     * @param tableBox 表格箱子
+     *
+     * @param tableBox          表格箱子
      * @param familyReportIndex 添加未知，从0开始
      */
     private void addFamilyReportsTableInputRow(Box tableBox, int familyReportIndex) {
@@ -1275,7 +1419,7 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
         leftMiddle(rowBox, hBox, POETRY_TABLE_COLUMN_WIDTH_3);
 
-        return new JButton[] {insertButton, deleteButton};
+        return new JButton[]{insertButton, deleteButton};
     }
 
     // 水平居左，垂直居中
@@ -1294,8 +1438,9 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 创建诗歌集面板中插入按钮的动作监听器
+     *
      * @param tableBox 表格箱子布局
-     * @param rowBox 水平箱子布局
+     * @param rowBox   水平箱子布局
      * @return 动作监听器
      */
     private ActionListener createPoetryInsertButtonActionListener(Box tableBox, Box rowBox) {
@@ -1312,8 +1457,9 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 创建诗歌集面板中删除按钮的动作监听器
-     * @param tableBox 表格箱子布局
-     * @param rowBox 水平箱子布局
+     *
+     * @param tableBox       表格箱子布局
+     * @param rowBox         水平箱子布局
      * @param textFieldsList 诗歌输入框列表
      * @return 动作监听器
      */
@@ -1340,8 +1486,9 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 获取{@code rowBox}在{@code tableBox}中的位置
+     *
      * @param tableBox 垂直方向的箱子布局
-     * @param rowBox 水平方向的箱子布局
+     * @param rowBox   水平方向的箱子布局
      * @return 索引位置，从0开始
      */
     private int getIndexOfRowBox(Box tableBox, Box rowBox) {
@@ -1356,6 +1503,7 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 创建一个可以选择复制的文本域
+     *
      * @param text 字符串
      * @return 文本域
      */
@@ -1375,6 +1523,7 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 字符串是否为空
+     *
      * @param str 字符串
      * @return 布尔值
      */
@@ -1384,6 +1533,7 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 弹出警告框
+     *
      * @param message 警告信息
      */
     private void warn(String message) {
@@ -1396,6 +1546,7 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 获取窗体的图标
+     *
      * @return 图标
      */
     private ImageIcon getImageIcon() {
@@ -1418,6 +1569,7 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 获取粗体字体
+     *
      * @return 字体
      */
     private Font getBoldFont() {
@@ -1430,6 +1582,7 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 异步执行GUI事件，将事件放在EDT中执行
+     *
      * @param runnable 可执行对象
      */
     private void run(Runnable runnable) {
@@ -1438,13 +1591,14 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 将敬拜实体序列化写入到本地磁盘默认位置
+     *
      * @param worshipEntity 敬拜实体
      */
     private void saveWorshipEntity(WorshipEntity worshipEntity) {
         String appDirPath = System.getProperty("user.home") + File.separator + SystemConfig.APP_CONFIG_DIR_PATH;
         File file = new File(appDirPath, WorshipEntity.class.getSimpleName());
         if (file.exists()) {
-            logger.debug("存在缓存的的敬拜实体序列化文件");
+            logger.debug("目标路径已存在缓存的的敬拜实体序列化文件");
             if (file.delete()) {
                 logger.debug("已删除缓存的的敬拜实体序列化文件");
             } else {
@@ -1452,10 +1606,10 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
                 return;
             }
         }
-        // 重新写入
+        // 重新写入 TODO
         logger.info("将要保存的敬拜实体信息：" + worshipEntity.toString());
         try (OutputStream os = new FileOutputStream(file);
-            ObjectOutputStream oos = new ObjectOutputStream(os)) {
+             ObjectOutputStream oos = new ObjectOutputStream(os)) {
             oos.writeObject(worshipEntity);
         } catch (Exception e) {
             logger.warn("无法序列化敬拜实体！", e);
@@ -1464,17 +1618,22 @@ private PoetryAlbumEntity getPoetryAlbumEntity(String name) {
 
     /**
      * 从本地磁盘默认位置读取敬拜实体，填充面板
+     *
      * @return 敬拜实体
      */
     private WorshipEntity readWorshipEntity() {
         String appDirPath = System.getProperty("user.home") + File.separator + SystemConfig.APP_CONFIG_DIR_PATH;
+        // 测试打印
+        logger.debug("敬拜实体信息的路径：" + appDirPath);
         File file = new File(appDirPath, WorshipEntity.class.getSimpleName());
         if (!file.exists()) {
             return null;
         }
         try (InputStream is = new FileInputStream(file);
-            ObjectInputStream ois = new ObjectInputStream(is)) {
-            return (WorshipEntity) ois.readObject();
+             ObjectInputStream ois = new ObjectInputStream(is)) {
+            WorshipEntity savedWorshipEntity = (WorshipEntity) ois.readObject();
+            logger.info("读取到的敬拜实体信息：" + savedWorshipEntity.toString());
+            return savedWorshipEntity;
         } catch (Exception e) {
             logger.warn("无法读取敬拜实体！", e);
         }

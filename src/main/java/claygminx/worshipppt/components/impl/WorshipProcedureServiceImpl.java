@@ -65,7 +65,7 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
                 context.put("ppt", ppt);
                 context.put("worshipEntity", worshipEntity);
                 context.put("scriptureService", scriptureService);
-                // 设置OGNL表达式的根对象
+                // 设置OGNL表达式的根对象(当属性没有指定的时候，默认在根对象中查找，比如name会被解析成worshipEntity.name)
                 Ognl.setRoot(context, worshipEntity);
                 // 获取子元素model的所有属性<worship-step>
                 List<?> stepElements = modelElement.elements();
