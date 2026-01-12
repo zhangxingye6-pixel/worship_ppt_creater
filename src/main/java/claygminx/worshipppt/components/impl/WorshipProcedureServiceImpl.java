@@ -107,10 +107,10 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
         if (!missingLayout.isEmpty()) {
             // 拼接字符串
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("ppt模板有以下缺失，请检查完整性或版式自定义命名后重新制作:\n");
+            stringBuilder.append("以下ppt模板缺失:\n");
             // 遍历缺失的列表
             for (String s : missingLayout) {
-                stringBuilder.append("\t - ").append(s).append("\n");
+                stringBuilder.append(" - ").append(s).append("\n");
             }
             String exceptionMeaasge = stringBuilder.toString();
 

@@ -725,12 +725,12 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         worshipEntity.setPoetryContent(poetryContentEntity);
 
         StringBuilder stringBuilder = new StringBuilder();
-        // 将7个诗歌面板的检查信息一并返回，防止程序中断导致PrayPoetryAlbum对象成员为null
+        stringBuilder.append("以下诗歌面板的输入不合法:\n");
+        // 将7个诗歌面板的检查信息一并返回，防止程序中断导致缓存对象中的PrayPoetryAlbum对象成员为null
         List<JTextField[]> prayTextFieldsList = poetryListMap.get(PoetryAlbumName.PRAY_POETRY);
         String message = checkPoetryInfo(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList, 0);
         if (message != null) {
             stringBuilder.append(message);
-
         }
         PoetryAlbumEntity prayPoetryAlbum = readPoetryAlbum(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList);
         poetryContentEntity.setPrayPoetryAlbum(prayPoetryAlbum);
@@ -770,7 +770,6 @@ public class WorshipFormServiceImpl implements WorshipFormService {
             PoetryAlbumEntity offertoryPoetryAlbum = readPoetryAlbum(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList);
             poetryContentEntity.setOffertoryPoetryAlbum(offertoryPoetryAlbum);
 
-
         if (WorshipModel.WITHIN_HOLY_COMMUNION.equals(selectedModel) || WorshipModel.WITHIN_INITIATION.equals(selectedModel)) {
             List<JTextField[]> holyCommunionTextFieldsList = poetryListMap.get(PoetryAlbumName.HOLY_COMMUNION_POETRY);
             message = checkPoetryInfo(PoetryAlbumName.HOLY_COMMUNION_POETRY, holyCommunionTextFieldsList, 1);
@@ -781,67 +780,6 @@ public class WorshipFormServiceImpl implements WorshipFormService {
             poetryContentEntity.setHolyCommunionPoetryAlbum(holyCommunionPoetryAlbum);
 
         }
-//        List<JTextField[]> prayTextFieldsList = poetryListMap.get(PoetryAlbumName.PRAY_POETRY);
-//        String message = checkPoetryInfo(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList, 0);
-//        if (message != null) {
-//            warn(message);
-//            return false;
-//        } else {
-//            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList);
-//            poetryContentEntity.setPrayPoetryAlbum(album);
-//        }
-//
-//        List<JTextField[]> practiseTextFieldsList = poetryListMap.get(PoetryAlbumName.PRACTISE_POETRY);
-//        message = checkPoetryInfo(PoetryAlbumName.PRACTISE_POETRY, practiseTextFieldsList, 0);
-//        if (message != null) {
-//            warn(message);
-//            return false;
-//        } else {
-//            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.PRACTISE_POETRY, practiseTextFieldsList);
-//            poetryContentEntity.setPractisePoetryAlbum(album);
-//        }
-//
-//        List<JTextField[]> worshipTextFieldsList = poetryListMap.get(PoetryAlbumName.WORSHIP_POETRY);
-//        message = checkPoetryInfo(PoetryAlbumName.WORSHIP_POETRY, worshipTextFieldsList, 2);
-//        if (message != null) {
-//            warn(message);
-//            return false;
-//        } else {
-//            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.WORSHIP_POETRY, worshipTextFieldsList);
-//            poetryContentEntity.setWorshipPoetryAlbum(album);
-//        }
-//
-//        List<JTextField[]> responseTextFieldsList = poetryListMap.get(PoetryAlbumName.RESPONSE_POETRY);
-//        message = checkPoetryInfo(PoetryAlbumName.RESPONSE_POETRY, responseTextFieldsList, 1);
-//        if (message != null) {
-//            warn(message);
-//            return false;
-//        } else {
-//            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.RESPONSE_POETRY, responseTextFieldsList);
-//            poetryContentEntity.setResponsePoetryAlbum(album);
-//        }
-//
-//        List<JTextField[]> offertoryTextFieldsList = poetryListMap.get(PoetryAlbumName.OFFERTORY_POETRY);
-//        message = checkPoetryInfo(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList, 1);
-//        if (message != null) {
-//            warn(message);
-//            return false;
-//        } else {
-//            PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList);
-//            poetryContentEntity.setOffertoryPoetryAlbum(album);
-//        }
-//
-//        if (WorshipModel.WITHIN_HOLY_COMMUNION.equals(selectedModel) || WorshipModel.WITHIN_INITIATION.equals(selectedModel)) {
-//            List<JTextField[]> holyCommunionTextFieldsList = poetryListMap.get(PoetryAlbumName.HOLY_COMMUNION_POETRY);
-//            message = checkPoetryInfo(PoetryAlbumName.HOLY_COMMUNION_POETRY, holyCommunionTextFieldsList, 1);
-//            if (message != null) {
-//                warn(message);
-//                return false;
-//            } else {
-//                PoetryAlbumEntity album = readPoetryAlbum(PoetryAlbumName.HOLY_COMMUNION_POETRY, holyCommunionTextFieldsList);
-//                poetryContentEntity.setHolyCommunionPoetryAlbum(album);
-//            }
-//        }
 
         if (WorshipModel.WITHIN_INITIATION.equals(selectedModel)) {
             List<JTextField[]> initiationTextFieldsList = poetryListMap.get(PoetryAlbumName.INITIATION_POETRY);
@@ -992,7 +930,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
             // 检查输入的完整性
             if (!isEmpty(name) && isEmpty(directory) || isEmpty(name) && !isEmpty(directory)) {
-                return albumName + "中第" + (i + 1) + "行诗歌输入不完整！";
+                return " - " + albumName + "中第" + (i + 1) + "行诗歌输入不完整！";
             }
             File dirFile = new File(directory);
             if (dirFile.exists()) {
@@ -1008,14 +946,14 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                 File[] targetFiles = dirFile.listFiles(fileFilter);
                 if (targetFiles == null) {
                     // 目录存在但没有读取权限或者目录异常
-                    stringBuilder.append(albumName + "中第" + (i + 1) + "行输入的文件夹无读取权限，无法检查歌谱文件\n");
+                    stringBuilder.append(" - " + albumName + "中第" + (i + 1) + "行输入的文件夹无读取权限，无法检查歌谱文件\n");
                 } else if (targetFiles.length == 0) {
                     // 目录存在但没有目标图谱文件
-                    stringBuilder.append(albumName + "中第" + (i + 1) + "行输入的文件夹中未找到指定后缀的歌谱文件\n");
+                    stringBuilder.append(" - " + albumName + "中第" + (i + 1) + "行输入的文件夹中未找到指定后缀的歌谱文件\n");
                 }
             } else {
                 // 目录不存在
-                stringBuilder.append(albumName + "中第" + (i + 1) + "行输入的路径中不存在\n");
+                stringBuilder.append(" - " + albumName + "中第" + (i + 1) + "行输入的路径中不存在\n");
             }
 
 
