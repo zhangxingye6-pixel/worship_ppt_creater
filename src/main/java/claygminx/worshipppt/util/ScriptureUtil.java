@@ -3,6 +3,7 @@ package claygminx.worshipppt.util;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.ScriptureNumberEntity;
 import claygminx.worshipppt.common.entity.ScriptureSectionEntity;
+import claygminx.worshipppt.common.entity.confession.ConfessionContentEntity;
 import claygminx.worshipppt.components.impl.AbstractWorshipStep;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.common.Dict;
@@ -130,7 +131,7 @@ public class ScriptureUtil {
      * @throws ScriptureNumberException 若给定参数不符合经文编号格式，抛出此异常
      */
     public static List<ScriptureSectionEntity> parseSections(String sections) throws ScriptureNumberException {
-        logger.debug("开始章节");
+        logger.debug("开始解析圣经章节");
         // 章节的第一分隔符是逗号
         String[] splitResult = sections.split(",");
         logger.debug("逗号分割后有{}个部分", splitResult.length);
@@ -185,7 +186,7 @@ public class ScriptureUtil {
         for (int i = startChapter; i <= endChapter; i++) {
             // 每次循环创建一个新的章节实体
             ScriptureSectionEntity scriptureSectionEntity = new ScriptureSectionEntity();
-            ArrayList<Integer> verses = new ArrayList<>();
+            List<Integer> verses = new ArrayList<>();
             scriptureSectionEntity.setChapter(i);
             // 如果有间隔的章节，节列表为null，表示全章；首位需要特殊处理，使用枚举标记
             if (i == startChapter) {

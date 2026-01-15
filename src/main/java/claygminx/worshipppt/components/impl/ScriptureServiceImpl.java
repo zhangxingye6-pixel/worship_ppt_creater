@@ -26,23 +26,14 @@ import java.util.Optional;
 public class ScriptureServiceImpl implements ScriptureService {
 
     static {
-        // 驱动会通过 SPI 自动注册
-//        try {
-//            Class.forName("org.sqlite.JDBC");
-//        } catch (ClassNotFoundException e) {
-//            throw new SystemException("无法加载org.sqlite.JDBC！", e);
-//        }
-
-        String dbFilePath = SystemConfig.getString(Dict.DatabaseProperty.SQLITE_PATH);
-        if (dbFilePath == null) {
-            throw new SystemException("未设置圣经数据库！请检查数据库配置");
-        }
+        // JDBC驱动会通过SPI自动注册
+        String dbFilePath = SystemConfig.getString(Dict.DatabaseProperty.BIBLE_SQLITE_PATH);
         File dbFile = new File(dbFilePath);
         if (!dbFile.exists()) {
-            throw new SystemException(dbFilePath + "不存在！");
+            throw new SystemException("数据库连接异常：" + dbFilePath + "未找到数据库文件");
         }
         // 格式化的数据库路径
-        DB_URL = "jdbc:sqlite:" + dbFile.getAbsolutePath();
+        DB_URL = Dict.DatabaseProperty.JDBC_SQLITE_PREFIX + dbFile.getAbsolutePath();
     }
 
     private final static Logger logger = LoggerFactory.getLogger(ScriptureService.class);
@@ -148,7 +139,6 @@ public class ScriptureServiceImpl implements ScriptureService {
                 List<Integer> verses = scriptureSection.getVerses();
                 if (verses == null || verses.isEmpty()) {
                     logger.debug("没有写节，那么直接按章来查询经文");
-                    // 通过bookId, chapter, verse确定唯一的经文
                     PreparedStatement preparedStatement = connection.prepareStatement("SELECT Verse,Scripture FROM Bible WHERE Book=? AND Chapter=? AND Scripture!='-' ORDER BY Id");
                     preparedStatement.setInt(1, scriptureNumber.getBookId());
                     preparedStatement.setInt(2, scriptureSection.getChapter());
@@ -198,13 +188,14 @@ public class ScriptureServiceImpl implements ScriptureService {
                     // 定义一个计数器，作为节编号
                     int verseNumber = 1;
                     while (resultSet.next()) {
-                        String verse = resultSet.getString(1);
+                        String scripture = resultSet.getString(1);
                         // 简化经文
-                        verse = ScriptureUtil.simplifyScripture(verse);
+                        scripture = ScriptureUtil.simplifyScripture(scripture);
                         ScriptureVerseEntity scriptureVerseEntity = new ScriptureVerseEntity();
                         scriptureVerseEntity.setBookId(scriptureNumber.getBookId());
                         scriptureVerseEntity.setChapter(scriptureSection.getChapter());
                         scriptureVerseEntity.setVerse(verseNumber);
+                        scriptureVerseEntity.setScripture(scripture);
                         scriptureVerseEntityList.add(scriptureVerseEntity);
                         // 下一节的编号（若存在）
                         verseNumber++;
@@ -302,7 +293,7 @@ public class ScriptureServiceImpl implements ScriptureService {
         try {
             return DriverManager.getConnection(DB_URL);
         } catch (SQLException e) {
-            throw new SystemException("无法从圣经数据库获取连接！", e);
+            throw new SystemException("与圣经数据库获取连接失败", e);
         }
     }
 

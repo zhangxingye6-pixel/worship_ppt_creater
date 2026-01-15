@@ -111,25 +111,35 @@
         </dependency>
 
         <!-- 单元测试 -->
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite-api</artifactId>
-            <version>1.9.3</version>
-            <scope>test</scope>
-        </dependency>
+        <!-- JUnit 5 -->
+<!--        <dependency>-->
+<!--            <groupId>org.junit.jupiter</groupId>-->
+<!--            <artifactId>junit-jupiter</artifactId>-->
+<!--            <version>5.9.3</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite-engine</artifactId>
-            <version>1.9.3</version>
-            <scope>test</scope>
-        </dependency>
+        <!-- Mockito -->
+<!--        <dependency>-->
+<!--            <groupId>org.mockito</groupId>-->
+<!--            <artifactId>mockito-inline</artifactId>-->
+<!--            <version>4.11.0</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
 
+        <!-- Mockito JUnit 5 集成 -->
+<!--        <dependency>-->
+<!--            <groupId>org.mockito</groupId>-->
+<!--            <artifactId>mockito-junit-jupiter</artifactId>-->
+<!--            <version>4.11.0</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+
+        <!-- Apache Commons Lang3 -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.9.2</version>
-            <scope>test</scope>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.14.0</version> <!-- 建议使用最新稳定版 -->
         </dependency>
     </dependencies>
 

@@ -17,6 +17,7 @@ public class Dict {
         public final static String GENERAL_FONT_FAMILY = "ppt.general.fontFamily";
         public final static String GENERAL_TITLE_FONT_SIZE = "ppt.general.titleSize";
         public final static String GENERAL_SCRIPTURE_FONT_SIZE = "ppt.general.scriptureSize";
+        public final static String GENERAL_STEP_COVER_FONT_SIZE = "ppt.general.stepCover.fontSize";
 
         public final static String GENERAL_PLACEHOLDER = "ppt.general.placeholder";
         public final static String GENERAL_LANGUAGE = "ppt.general.language";
@@ -64,19 +65,26 @@ public class Dict {
      * 数据库属性
      */
     public static class DatabaseProperty {
-        public final static String SQLITE_PATH = "SQLite.path";
+        public final static String BIBLE_SQLITE_PATH = "bible.SQLite.path";
+        public final static String CONFESSION_SQLITE_PATH = "confession.SQLite.path";
+        public final static String JDBC_SQLITE_PREFIX = "jdbc:sqlite:";
     }
 
     /**
      * 经文属性
      */
     public static class ScriptureProperty {
+        // 经文
         public final static String PATH = "scripture.path";
         public final static String FORMAT1 = "scripture.format1";
-//        public final static String FORMAT2 = "scripture.format2";
+        public final static String FORMAT2 = "scripture.format2";
         public final static String FORMAT3 = "scripture.format3";
         public final static String FORMAT4 = "scripture.format4";
         public final static String REGEX = "scripture.regex";
+
+        // 信条
+        public final static String CONFESSION_FORMART1 = "confession.format1";
+
     }
 
     /**

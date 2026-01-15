@@ -57,13 +57,9 @@ public class SummonStep extends AbstractWorshipStep {
         XSLFTextShape placeholder = slide.getPlaceholder(0);
         XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
         titleTextRun.setFontSize(AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE);
-        titleTextRun.setText(new StringBuilder()
-                .append("【")
-                .append(scriptureNumber)
-                .append("】")
-                .toString()
-                .trim());
-        TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+        titleTextRun.setText(scriptureNumber);
+        titleTextRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
+        TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
 
         // 经文部分
         double scriptureFontSize = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.SUMMON_SCRIPTURE_FONT_SIZE, AbstractWorshipStep.DEFAULT_SCRIPTURE_FONT_SIZE);

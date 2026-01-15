@@ -477,20 +477,20 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
         declarationTextFieldMap = new HashMap<>();
         JTextField titleTextField = addRegularTableInputRow(tableBox, DeclarationKey.TITLE);
-        titleTextField.setToolTipText("不需要用书名号括起来");
+        titleTextField.setToolTipText("目前仅支持‘西敏信条18.1-3、信条18-19等相同格式输入’");
         declarationTextFieldMap.put(DeclarationKey.TITLE, titleTextField);
-
-        JTextField speakerTextField = addRegularTableInputRow(tableBox, DeclarationKey.SPEAKER);
-        declarationTextFieldMap.put(DeclarationKey.SPEAKER, speakerTextField);
+        // 现阶段不需要讲员面板
+//        JTextField speakerTextField = addRegularTableInputRow(tableBox, DeclarationKey.SPEAKER);
+//        declarationTextFieldMap.put(DeclarationKey.SPEAKER, speakerTextField);
 
         DeclarationEntity declaration = worshipEntity.getDeclaration();
         if (declaration != null) {
             if (!isEmpty(declaration.getTitle())) {
                 titleTextField.setText(declaration.getTitle());
             }
-            if (!isEmpty(declaration.getSpeaker())) {
-                speakerTextField.setText(declaration.getSpeaker());
-            }
+//            if (!isEmpty(declaration.getSpeaker())) {
+//                speakerTextField.setText(declaration.getSpeaker());
+//            }
         }
 
         JPanel panel = new JPanel();
@@ -726,11 +726,13 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("以下诗歌面板的输入不合法:\n");
+        boolean warnTag = false;
         // 将7个诗歌面板的检查信息一并返回，防止程序中断导致缓存对象中的PrayPoetryAlbum对象成员为null
         List<JTextField[]> prayTextFieldsList = poetryListMap.get(PoetryAlbumName.PRAY_POETRY);
         String message = checkPoetryInfo(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList, 0);
         if (message != null) {
             stringBuilder.append(message);
+            warnTag = true;
         }
         PoetryAlbumEntity prayPoetryAlbum = readPoetryAlbum(PoetryAlbumName.PRAY_POETRY, prayTextFieldsList);
         poetryContentEntity.setPrayPoetryAlbum(prayPoetryAlbum);
@@ -740,6 +742,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         message = checkPoetryInfo(PoetryAlbumName.PRACTISE_POETRY, practiseTextFieldsList, 0);
         if (message != null) {
             stringBuilder.append(message);
+            warnTag = true;
         }
         PoetryAlbumEntity practisePoetryAlbum = readPoetryAlbum(PoetryAlbumName.PRACTISE_POETRY, practiseTextFieldsList);
         poetryContentEntity.setPractisePoetryAlbum(practisePoetryAlbum);
@@ -749,6 +752,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         message = checkPoetryInfo(PoetryAlbumName.WORSHIP_POETRY, worshipTextFieldsList, 2);
         if (message != null) {
             stringBuilder.append(message);
+            warnTag = true;
         }
         PoetryAlbumEntity worshipPoetryAlbum = readPoetryAlbum(PoetryAlbumName.WORSHIP_POETRY, worshipTextFieldsList);
         poetryContentEntity.setWorshipPoetryAlbum(worshipPoetryAlbum);
@@ -757,24 +761,27 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         message = checkPoetryInfo(PoetryAlbumName.RESPONSE_POETRY, responseTextFieldsList, 1);
         if (message != null) {
             stringBuilder.append(message);
+            warnTag = true;
         }
-            PoetryAlbumEntity responsePoetryAlbum = readPoetryAlbum(PoetryAlbumName.RESPONSE_POETRY, responseTextFieldsList);
-            poetryContentEntity.setResponsePoetryAlbum(responsePoetryAlbum);
+        PoetryAlbumEntity responsePoetryAlbum = readPoetryAlbum(PoetryAlbumName.RESPONSE_POETRY, responseTextFieldsList);
+        poetryContentEntity.setResponsePoetryAlbum(responsePoetryAlbum);
 
 
         List<JTextField[]> offertoryTextFieldsList = poetryListMap.get(PoetryAlbumName.OFFERTORY_POETRY);
         message = checkPoetryInfo(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList, 1);
         if (message != null) {
             stringBuilder.append(message);
+            warnTag = true;
         }
-            PoetryAlbumEntity offertoryPoetryAlbum = readPoetryAlbum(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList);
-            poetryContentEntity.setOffertoryPoetryAlbum(offertoryPoetryAlbum);
+        PoetryAlbumEntity offertoryPoetryAlbum = readPoetryAlbum(PoetryAlbumName.OFFERTORY_POETRY, offertoryTextFieldsList);
+        poetryContentEntity.setOffertoryPoetryAlbum(offertoryPoetryAlbum);
 
         if (WorshipModel.WITHIN_HOLY_COMMUNION.equals(selectedModel) || WorshipModel.WITHIN_INITIATION.equals(selectedModel)) {
             List<JTextField[]> holyCommunionTextFieldsList = poetryListMap.get(PoetryAlbumName.HOLY_COMMUNION_POETRY);
             message = checkPoetryInfo(PoetryAlbumName.HOLY_COMMUNION_POETRY, holyCommunionTextFieldsList, 1);
             if (message != null) {
                 stringBuilder.append(message);
+                warnTag = true;
             }
             PoetryAlbumEntity holyCommunionPoetryAlbum = readPoetryAlbum(PoetryAlbumName.HOLY_COMMUNION_POETRY, holyCommunionTextFieldsList);
             poetryContentEntity.setHolyCommunionPoetryAlbum(holyCommunionPoetryAlbum);
@@ -786,11 +793,12 @@ public class WorshipFormServiceImpl implements WorshipFormService {
             message = checkPoetryInfo(PoetryAlbumName.INITIATION_POETRY, initiationTextFieldsList, 1);
             if (message != null) {
                 stringBuilder.append(message);
+                warnTag = true;
             }
             PoetryAlbumEntity initiationPoetryAlbum = readPoetryAlbum(PoetryAlbumName.INITIATION_POETRY, initiationTextFieldsList);
             poetryContentEntity.setInitiationPoetryAlbum(initiationPoetryAlbum);
         }
-        if (!stringBuilder.isEmpty()){
+        if (warnTag) {
             // 在某个环节的面板填充有问题
             warn(stringBuilder.toString());
             return false;
@@ -832,13 +840,13 @@ public class WorshipFormServiceImpl implements WorshipFormService {
             warn("需要填写宣信主题！");
             return false;
         }
-        if (isEmpty(declarationSpeakerTextField.getText())) {
-            logger.warn("未输入讲员！");
-        }
+//        if (isEmpty(declarationSpeakerTextField.getText())) {
+//            logger.warn("未输入讲员！");
+//        }
 
         DeclarationEntity declaration = new DeclarationEntity();
         declaration.setTitle(declarationTitleTextField.getText().trim());
-        declaration.setSpeaker(declarationSpeakerTextField.getText().trim());
+//        declaration.setSpeaker(declarationSpeakerTextField.getText().trim());
         worshipEntity.setDeclaration(declaration);
 
         return true;
