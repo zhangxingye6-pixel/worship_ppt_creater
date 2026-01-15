@@ -12,6 +12,7 @@ import claygminx.worshipppt.util.TextUtil;
 import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Text;
 
 import java.awt.*;
 
@@ -77,10 +78,11 @@ public class PreachScriptureStep extends AbstractWorshipStep {
                 slide = ppt.createSlide(layout);
                 // 获取第一占位符（经文章节编号部分，不需要清空）
                 placeholder = slide.getPlaceholder(0);
-                // TODO 需要在文字段中操作
-                String text = placeholder.getText();
-                // 将配置中的占位符替换为经文编号，其实直接setText就可以了
-                placeholder.setText(text.replace(getCustomPlaceholder().trim(), scriptureNumber));
+                XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
+                titleTextRun.setText(scriptureNumber);
+                titleTextRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
+                titleTextRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_SIZE, AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE));
+                TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
 
                 // 获取第二占位符（经文区域），并且清空，填充新的经文
                 placeholder = slide.getPlaceholder(1);

@@ -27,6 +27,7 @@ public class WorshipPPTServiceImpl implements WorshipPPTService {
 
     private final FileService fileService;
     private final ScriptureService scriptureService;
+    private final ConfessionService confessionService;
     private ProgressMonitor progressMonitor;
 
     private final WorshipEntity worshipEntity;
@@ -36,6 +37,7 @@ public class WorshipPPTServiceImpl implements WorshipPPTService {
     public WorshipPPTServiceImpl(WorshipEntity worshipEntity, File outputFile) {
         fileService = FileServiceImpl.getInstance();
         scriptureService = ScriptureServiceImpl.getInstance();
+        confessionService = ConfessionServiceImpl.getInstance();
         this.worshipEntity = worshipEntity;
         this.file = outputFile;
     }
@@ -70,7 +72,8 @@ public class WorshipPPTServiceImpl implements WorshipPPTService {
             // 敬拜过程服务对象
             WorshipProcedureServiceImpl worshipProcedureService = new WorshipProcedureServiceImpl();
             worshipProcedureService.setFileService(fileService);
-            worshipProcedureService.setScriptureService(scriptureService);
+            worshipProcedureService.setScriptureService(scriptureService);      // 经文服务
+            worshipProcedureService.setConfessionService(confessionService);    // 信条服务
             List<WorshipStep> worshipProcedure = worshipProcedureService.generate(ppt, worshipEntity);
             increaseProgress(1, "读取敬拜流程");
             int perProgress = (int) Math.ceil((99 - progress) / (double) worshipProcedure.size());

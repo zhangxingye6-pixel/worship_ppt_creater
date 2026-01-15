@@ -33,7 +33,7 @@ public class PoetryTitleStep extends AbstractWorshipStep {
         XSLFSlideLayout layout = ppt.findLayout(getLayout());
         XSLFSlide slide = ppt.createSlide(layout);
 
-        fillPlaceholder(slide, 0, slideName);
+        fillPlaceholder(slide, 0, " " + slideName);
         fillPlaceholder(slide, 1, poetryName);
 
         logger.info("诗歌标题 - 幻灯片制作完成");
@@ -43,13 +43,14 @@ public class PoetryTitleStep extends AbstractWorshipStep {
         XSLFTextShape placeholder = slide.getPlaceholder(idx);
         XSLFTextRun textRun = TextUtil.clearAndCreateTextRun(placeholder);
         textRun.setText(text.trim());
-        TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
         String fontStyle = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_FAMILT, DEFAULT_FONT_FAMILY);
         textRun.setFontFamily(fontStyle);
         if (idx == 1){  // 制作诗歌封面
             textRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_SIZE, DEFAULT_POETRY_COVER_FONT_SIZE));
+            TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
         }else {     // 制作诗歌标题
             textRun.setFontSize(DEFAULT_POETRY_TITLE_FONT_SIZE);
+            TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
         }
 
 

@@ -31,6 +31,7 @@ public abstract class AbstractWorshipStep implements WorshipStep {
     public final static double DEFAULT_TITLE_FONT_SIZE = 40.0;
     public final static double DEFAULT_SCRIPTURE_FONT_SIZE = 35.0;
     public final static String DEFAULT_FONT_FAMILY = "微软雅黑";
+    public final static double DEFAULT_STEP_COVER_FONT_SIZE = 60.0;
 
     /**
      * 通用的构造器
@@ -114,12 +115,8 @@ public abstract class AbstractWorshipStep implements WorshipStep {
         // 填充标题
         XSLFTextShape placeholder = slide.getPlaceholder(0);
         XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
-        titleTextRun.setText(new StringBuilder()
-                .append("【")
-                .append(titleAndScripture[0])
-                .append("】")
-                .toString().trim());
-        TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+        titleTextRun.setText(titleAndScripture[0]);
+        TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
         double titleFontSize = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.GENERAL_TITLE_FONT_SIZE, DEFAULT_TITLE_FONT_SIZE);
         titleTextRun.setFontSize(titleFontSize);
         if (logger.isDebugEnabled()) {

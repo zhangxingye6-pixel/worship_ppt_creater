@@ -19,9 +19,10 @@ public class TextUtil {
      * 字体颜色RGBs
      */
     public static class FontColor{
-        public final static int[] RGB_FONT_COLOR_BLUE = {45, 71, 209};
-        public final static int[] RGB_FONT_COLOR_RED = {239, 73, 15};
+        public final static int[] RGB_FONT_COLOR_BLUE = {63, 114, 191};
+        public final static int[] RGB_FONT_COLOR_RED = {245, 101, 81};
         public final static int[] RGB_FONT_COLOR_BLACK = {64, 64, 64};
+        public final static int[] RGB_FONT_COLOR_WHITE = {255, 255, 255};
 
     }
 

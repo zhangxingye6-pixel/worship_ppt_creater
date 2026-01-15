@@ -2,10 +2,7 @@ package claygminx.worshipppt.components.impl;
 
 import claygminx.worshipppt.common.entity.CoverEntity;
 import claygminx.worshipppt.common.entity.WorshipEntity;
-import claygminx.worshipppt.components.FileService;
-import claygminx.worshipppt.components.ScriptureService;
-import claygminx.worshipppt.components.WorshipProcedureService;
-import claygminx.worshipppt.components.WorshipStep;
+import claygminx.worshipppt.components.*;
 import claygminx.worshipppt.exception.FileServiceException;
 import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.SystemException;
@@ -19,12 +16,16 @@ import org.dom4j.*;
 
 import java.util.*;
 
+/**
+ * PPT制作服务的实现，通过OGNL将XML中的流程实例化
+ */
 public class WorshipProcedureServiceImpl implements WorshipProcedureService {
 
     private final static Logger logger = LoggerFactory.getLogger(WorshipProcedureService.class);
 
     private FileService fileService;
     private ScriptureService scriptureService;
+    private ConfessionService confessionService;
 
     /**
      * 处理XML配置文件
@@ -48,11 +49,11 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
         // 获取用户选择的敬拜模式（常规、圣餐、入会）
         CoverEntity cover = worshipEntity.getCover();
         String model = cover.getModel();
-        // 获取XML根元素<worship>
+        // 获取XML根元素（<worship>标签）
         Element rootElement = document.getRootElement();
-        // 获取敬拜类型子元素列表
+        // 获取敬拜类型子元素列表(<model>标签)
         List<?> elements = rootElement.elements();
-        Map<String, Object> context = new HashMap<>();  // 上下文对象
+        Map<String, Object> context = new HashMap<>();  // 创建OGNL上下文对象
         List<WorshipStep> result = new ArrayList<>();
         for (Object elementObj : elements) {
             // 测试打印XML子元素<model>
@@ -61,10 +62,11 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
             Element modelElement = (Element) elementObj;
             // 获取子元素model的name属性
             String modelName = modelElement.attributeValue("name");
-            if (model.equals(modelName)) {
-                context.put("ppt", ppt);
-                context.put("worshipEntity", worshipEntity);
-                context.put("scriptureService", scriptureService);
+            if (model.equals(modelName)) {                              // 匹配敬拜模式的model结构体
+                context.put("ppt", ppt);                                // ppt母版
+                context.put("worshipEntity", worshipEntity);            // 面板的敬拜实体参数
+                context.put("scriptureService", scriptureService);      // 经文服务
+                context.put("confessionService", confessionService);    // 信条服务
                 // 设置OGNL表达式的根对象(当属性没有指定的时候，默认在根对象中查找，比如name会被解析成worshipEntity.name)
                 Ognl.setRoot(context, worshipEntity);
                 // 获取子元素model的所有属性<worship-step>
@@ -107,10 +109,10 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
         if (!missingLayout.isEmpty()) {
             // 拼接字符串
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("ppt模板有以下缺失，请检查完整性或版式自定义命名后重新制作:\n");
+            stringBuilder.append("以下ppt模板缺失:\n");
             // 遍历缺失的列表
             for (String s : missingLayout) {
-                stringBuilder.append("\t - ").append(s).append("\n");
+                stringBuilder.append(" - ").append(s).append("\n");
             }
             String exceptionMeaasge = stringBuilder.toString();
 
@@ -161,5 +163,9 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
 
     public void setScriptureService(ScriptureService scriptureService) {
         this.scriptureService = scriptureService;
+    }
+
+    public void setConfessionService(ConfessionService confessionService) {
+        this.confessionService = confessionService;
     }
 }

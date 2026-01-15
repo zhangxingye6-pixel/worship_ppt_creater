@@ -58,7 +58,7 @@ public class ReadingScriptureStep extends AbstractWorshipStep {
 
 
         // 按预设的读经模板，每一行最多32个中文字符，每一页行数最佳是4行，尽量控制最多6行
-        // Lazarus2026: 根据当前的需要，为了使字号最大化，读经部分的幻灯片每页只保留两节经文
+        // 根据当前的需要，为了使字号最大化，读经部分的幻灯片每页只保留两节经文
         XSLFSlide slide = null;
         XSLFTextShape placeholder;
 //        int lineCount = 0;      // 行计数器 动态控制时使用
@@ -75,14 +75,10 @@ public class ReadingScriptureStep extends AbstractWorshipStep {
                 placeholder = slide.getPlaceholder(0);
                 XSLFTextRun textRun = TextUtil.clearAndCreateTextRun(placeholder);
                 textRun.setFontSize(AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE);
-                TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+                textRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
+                TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
                 // 将标题填充文本段内
-                textRun.setText(new StringBuilder()
-                        .append("【")
-                        .append(scriptureNumber)
-                        .append("】")
-                        .toString()
-                        .trim());
+                textRun.setText(scriptureNumber);
 
                 // 获取并清空占位符1中的默认文字（同时会将段落和文本块清除，需要重新创建）
                 placeholder = slide.getPlaceholder(1);
