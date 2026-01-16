@@ -3,11 +3,8 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.Dict;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.components.*;
-import claygminx.worshipppt.exception.FileServiceException;
-import claygminx.worshipppt.exception.ScriptureNumberException;
-import claygminx.worshipppt.exception.SystemException;
+import claygminx.worshipppt.exception.*;
 import claygminx.worshipppt.common.entity.*;
-import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.util.ScriptureUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -654,7 +651,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                                     "<li>还有更多需要细心检查的细节。</li></ol></html>";
                             JTextPane f = createTextPane(message);
                             JOptionPane.showMessageDialog(frame, f, "提示", JOptionPane.INFORMATION_MESSAGE);
-                        } catch (FileServiceException | WorshipStepException | SystemException e) {
+                        } catch (FileServiceException | WorshipStepException | PPTLayoutException | SystemException e) {
                             pm.close();
                             logger.error("制作PPT时出现错误！", e);
                             JOptionPane.showMessageDialog(frame, e.getMessage(), "提示", JOptionPane.ERROR_MESSAGE);
@@ -695,17 +692,17 @@ public class WorshipFormServiceImpl implements WorshipFormService {
             }
         }
         if (isEmpty(selectedModel)) {
-            warn("请先选择敬拜模式");
+            warn("请选择敬拜模式");
             return false;
         }
         String worshipDate = worshipDateTextField.getText();
         if (isEmpty(worshipDate)) {
-            warn("请输入敬拜日期！");
+            warn("请输入敬拜日期");
             return false;
         }
         String churchName = churchNameTextField.getText();
         if (isEmpty(churchName)) {
-            logger.warn("未输入教会名称！");
+            logger.warn("未输入教会名称");
         }
 
         CoverEntity cover = new CoverEntity();

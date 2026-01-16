@@ -2,6 +2,7 @@ package claygminx.worshipppt.components;
 
 import claygminx.worshipppt.common.entity.WorshipEntity;
 import claygminx.worshipppt.exception.FileServiceException;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 
 import java.util.List;
@@ -18,6 +19,6 @@ public interface WorshipProcedureService {
      * @return 敬拜流程
      * @throws FileServiceException 若读取定义敬拜流程的XML文件失败，则抛出此异常
      */
-    List<WorshipStep> generate(XMLSlideShow ppt, WorshipEntity worshipEntity) throws FileServiceException;
+    List<WorshipStep> generate(XMLSlideShow ppt, WorshipEntity worshipEntity) throws FileServiceException, PPTLayoutException;
 
 }
