@@ -3,6 +3,7 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.ScriptureEntity;
 import claygminx.worshipppt.components.ScriptureService;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.common.Dict;
@@ -38,7 +39,7 @@ public class ReadingScriptureStep extends AbstractWorshipStep {
      * @throws WorshipStepException
      */
     @Override
-    public void execute() throws WorshipStepException {
+    public void execute() throws WorshipStepException, PPTLayoutException {
         logger.info("开始读经" + scriptureNumber);
         ScriptureEntity scriptureEntity;
         try {
@@ -60,7 +61,7 @@ public class ReadingScriptureStep extends AbstractWorshipStep {
         // 按预设的读经模板，每一行最多32个中文字符，每一页行数最佳是4行，尽量控制最多6行
         // 根据当前的需要，为了使字号最大化，读经部分的幻灯片每页只保留两节经文
         XSLFSlide slide = null;
-        XSLFTextShape placeholder;
+        XSLFTextShape placeholder = null;
 //        int lineCount = 0;      // 行计数器 动态控制时使用
         int slideCount = 0;     // 页计数器 动态控制时使用
         double scriptureFontSize = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.READING_SCRIPTURE_FONT_SIZE, DEFAULT_SCRIPTURE_FONT_SIZE);
@@ -72,7 +73,7 @@ public class ReadingScriptureStep extends AbstractWorshipStep {
                 slideCount++;
                 slide = ppt.createSlide(layout);
                 // 获取版面中的占位符0
-                placeholder = slide.getPlaceholder(0);
+                placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "标题部分");
                 XSLFTextRun textRun = TextUtil.clearAndCreateTextRun(placeholder);
                 textRun.setFontSize(AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE);
                 textRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
@@ -81,13 +82,13 @@ public class ReadingScriptureStep extends AbstractWorshipStep {
                 textRun.setText(scriptureNumber);
 
                 // 获取并清空占位符1中的默认文字（同时会将段落和文本块清除，需要重新创建）
-                placeholder = slide.getPlaceholder(1);
+                placeholder = TextUtil.getPlaceholderSafely(slide, 1, getLayout(), "正文部分");
                 placeholder.clearText();
                 logger.info("开始第{}张读经幻灯片...", slideCount);
             }
 
             // 往正文添加一段经文，注意，可能因为经文字数较多，一行容不下
-            placeholder = slide.getPlaceholder(1);
+            placeholder = TextUtil.getPlaceholderSafely(slide, 1, getLayout(), "正文部分");
             XSLFTextParagraph paragraph = placeholder.addNewTextParagraph();        // 添加新的段落
             useCustomLanguage(paragraph);                                           // 设置段落格式
             XSLFTextRun textRun = paragraph.addNewTextRun();                        // 添加新的文本块

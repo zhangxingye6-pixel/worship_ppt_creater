@@ -3,6 +3,7 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.ScriptureNumberEntity;
 import claygminx.worshipppt.components.ScriptureService;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.util.ScriptureUtil;
@@ -35,7 +36,7 @@ public class ForgiveSinsScriptureStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() throws WorshipStepException {
+    public void execute() throws WorshipStepException, PPTLayoutException {
         List<ScriptureNumberEntity> scriptureNumberList;
         try {
             scriptureNumberList = ScriptureUtil.parseNumbers(scriptureNumber);
@@ -49,8 +50,8 @@ public class ForgiveSinsScriptureStep extends AbstractWorshipStep {
         XSLFSlide slide = ppt.createSlide(layout);
 
         // 赦罪经文标题
-        XSLFTextShape titlePlaceHolder = slide.getPlaceholder(0);
-        XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(titlePlaceHolder);
+        XSLFTextShape placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "标题部分");
+        XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
         titleTextRun.setText(titleAndScripture[0]);
         // 使用父类中的默认文本参数
         titleTextRun.setFontSize(AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE);
@@ -59,8 +60,8 @@ public class ForgiveSinsScriptureStep extends AbstractWorshipStep {
 
 
         // 赦罪经文
-        XSLFTextShape scriptureTextRun = slide.getPlaceholder(1);
-        List<XSLFTextParagraph> paragraphs = scriptureTextRun.getTextParagraphs();
+        placeholder = TextUtil.getPlaceholderSafely(slide, 1, getLayout(), "正文部分");
+        List<XSLFTextParagraph> paragraphs = placeholder.getTextParagraphs();
         // 获取行距配置
         double lineSpacing = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.FORGIVE_SINS_SCRIPTURE_LINE_SPACING, DEFAULT_LINE_SPACING);
         // 遍历占位符中的所有文本段落
@@ -90,7 +91,7 @@ public class ForgiveSinsScriptureStep extends AbstractWorshipStep {
                 }
                 if (rawText != null && rawText.contains("感谢主赦免我们的罪")){
                     textRun.setFontSize(AbstractWorshipStep.DEFAULT_SCRIPTURE_FONT_SIZE);
-                    textRun.setBaselineOffset(1.2);
+//                    textRun.setBaselineOffset(1.2);
                     TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
                 }
             }

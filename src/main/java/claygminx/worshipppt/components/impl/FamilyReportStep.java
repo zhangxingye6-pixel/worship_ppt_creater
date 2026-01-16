@@ -1,5 +1,7 @@
 package claygminx.worshipppt.components.impl;
 
+import claygminx.worshipppt.exception.PPTLayoutException;
+import claygminx.worshipppt.util.TextUtil;
 import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,13 +20,13 @@ public class FamilyReportStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws PPTLayoutException {
         XMLSlideShow ppt = getPpt();
         XSLFSlideLayout layout = ppt.findLayout(getLayout());
         XSLFSlide slide = ppt.createSlide(layout);
 
         if (familyReports != null && familyReports.size() > 0) {
-            XSLFTextShape placeholder = slide.getPlaceholder(0);
+            XSLFTextShape placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "");
             placeholder.clearText();
 
             logger.debug(familyReports.size() + "项家事报告");
@@ -32,7 +34,7 @@ public class FamilyReportStep extends AbstractWorshipStep {
                 String item = familyReports.get(i);
                 XSLFTextParagraph paragraph = placeholder.addNewTextParagraph();
                 XSLFTextRun textRun = paragraph.addNewTextRun();
-                textRun.setText((i + 1) + "、" + item);
+                textRun.setText((i + 1) + "." + item);
             }
         }
 

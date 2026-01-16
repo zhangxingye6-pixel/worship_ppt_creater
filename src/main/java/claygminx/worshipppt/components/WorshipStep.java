@@ -1,5 +1,6 @@
 package claygminx.worshipppt.components;
 
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.exception.WorshipStepException;
 
@@ -12,6 +13,6 @@ public interface WorshipStep {
      * 执行敬拜阶段以制作幻灯片
      * @throws WorshipStepException 出现错误时统一用此异常类
      */
-    void execute() throws WorshipStepException, ScriptureNumberException;
+    void execute() throws WorshipStepException, ScriptureNumberException, PPTLayoutException;
 
 }

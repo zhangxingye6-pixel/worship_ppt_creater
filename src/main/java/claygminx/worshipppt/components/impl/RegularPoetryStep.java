@@ -2,6 +2,7 @@ package claygminx.worshipppt.components.impl;
 
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.PoetryEntity;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.SystemException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.util.TextUtil;
@@ -43,7 +44,7 @@ public class RegularPoetryStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() throws WorshipStepException {
+    public void execute() throws WorshipStepException, PPTLayoutException {
         List<PoetryEntity> poetryList = getPoetryList();
         for (PoetryEntity poetry : poetryList) {
             File directory = poetry.getDirectory();
@@ -65,6 +66,8 @@ public class RegularPoetryStep extends AbstractWorshipStep {
                 makeSlides(files);
             } catch (SystemException e) {
                 throw new WorshipStepException("系统异常：" + e.getMessage(), e);
+            } catch (PPTLayoutException e) {
+                throw new PPTLayoutException(e.getMessage(), e);
             } catch (Exception e) {
                 throw new WorshipStepException("未知异常！", e);
             }
@@ -94,10 +97,11 @@ public class RegularPoetryStep extends AbstractWorshipStep {
 
     /**
      * 制作幻灯片
+     *
      * @param files 简谱图片
      * @throws IOException 添加图片到幻灯片时可能发生的异常
      */
-    private void makeSlides(File[] files) throws IOException {
+    private void makeSlides(File[] files) throws IOException, PPTLayoutException {
         XSLFPictureData.PictureType pictureType = PictureUtil.getPictureType(getFileExtensionName());
         if (pictureType == null) {
             throw new SystemException("文件扩展名[" + getFileExtensionName() + "]错误！");
@@ -148,6 +152,7 @@ public class RegularPoetryStep extends AbstractWorshipStep {
     /**
      * 获取文件序号
      * <p>文件名称的格式是：[诗歌名称]_Page[序号].png</p>
+     *
      * @param filename 文件名称
      * @return 文件序号
      */
@@ -180,12 +185,13 @@ public class RegularPoetryStep extends AbstractWorshipStep {
     /**
      * 设置页码
      * 将占位符替换为文本框，不可被移动
+     *
      * @param slide
      * @param totalCount
      * @param current
      */
-    private void setPageNumber(XSLFSlide slide, int totalCount, int current) {
-        XSLFTextShape placeholder = slide.getPlaceholder(0);
+    private void setPageNumber(XSLFSlide slide, int totalCount, int current) throws PPTLayoutException {
+        XSLFTextShape placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "页码部分");
 
         // step1：删除原系统占位符
         slide.removeShape(placeholder);

@@ -2,6 +2,7 @@ package claygminx.worshipppt.components.impl;
 
 import claygminx.worshipppt.common.Dict;
 import claygminx.worshipppt.common.entity.CoverEntity;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.util.ScriptureUtil;
 import claygminx.worshipppt.util.TextUtil;
 import org.apache.poi.xslf.usermodel.*;
@@ -27,13 +28,14 @@ public class CoverStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws PPTLayoutException {
         XMLSlideShow ppt = getPpt();
         XSLFSlideLayout coverLayout = ppt.findLayout(getLayout());
         XSLFSlide coverSlide = ppt.createSlide(coverLayout);
 
         // 设置敬拜日期文本和格式
-        XSLFTextShape placeholder = coverSlide.getPlaceholder(0);
+        XSLFTextShape placeholder = TextUtil.getPlaceholderSafely(coverSlide, 0, getLayout(), "日期部分");
+
         XSLFTextRun worshipDataTextRun = TextUtil.clearAndCreateTextRun(placeholder);
         worshipDataTextRun.setText(coverEntity.getWorshipDate().trim());
         worshipDataTextRun.setFontSize(DEFAULT_FONT_SIZE);
@@ -41,7 +43,7 @@ public class CoverStep extends AbstractWorshipStep {
 
 
         if (coverEntity.getChurchName() != null) {
-            placeholder = coverSlide.getPlaceholder(1);
+            placeholder = TextUtil.getPlaceholderSafely(coverSlide, 1, getLayout(), "教会名称");
             XSLFTextRun churchNameTextRun = TextUtil.clearAndCreateTextRun(placeholder);
             churchNameTextRun.setText(coverEntity.getChurchName().trim());
             TextUtil.setScriptureFontColor(churchNameTextRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);

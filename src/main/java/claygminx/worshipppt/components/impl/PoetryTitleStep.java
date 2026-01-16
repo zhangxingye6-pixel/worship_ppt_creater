@@ -2,6 +2,7 @@ package claygminx.worshipppt.components.impl;
 
 import claygminx.worshipppt.common.Dict;
 import claygminx.worshipppt.common.config.SystemConfig;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.util.TextUtil;
 import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ public class PoetryTitleStep extends AbstractWorshipStep {
     private final String poetryName;
 
     // 字体常量
-    private final double DEFAULT_POETRY_COVER_FONT_SIZE  = 55.0;
+    private final double DEFAULT_POETRY_COVER_FONT_SIZE = 55.0;
     private final double DEFAULT_POETRY_TITLE_FONT_SIZE = 40.0;
 
     public PoetryTitleStep(XMLSlideShow ppt, String layout, String slideName, String poetryName) {
@@ -28,7 +29,7 @@ public class PoetryTitleStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws PPTLayoutException {
         XMLSlideShow ppt = getPpt();
         XSLFSlideLayout layout = ppt.findLayout(getLayout());
         XSLFSlide slide = ppt.createSlide(layout);
@@ -39,16 +40,16 @@ public class PoetryTitleStep extends AbstractWorshipStep {
         logger.info("诗歌标题 - 幻灯片制作完成");
     }
 
-    private void fillPlaceholder(XSLFSlide slide, int idx, String text) {
-        XSLFTextShape placeholder = slide.getPlaceholder(idx);
+    private void fillPlaceholder(XSLFSlide slide, int idx, String text) throws PPTLayoutException {
+        XSLFTextShape placeholder = TextUtil.getPlaceholderSafely(slide, idx, getLayout(), "");
         XSLFTextRun textRun = TextUtil.clearAndCreateTextRun(placeholder);
         textRun.setText(text.trim());
         String fontStyle = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_FAMILT, DEFAULT_FONT_FAMILY);
         textRun.setFontFamily(fontStyle);
-        if (idx == 1){  // 制作诗歌封面
+        if (idx == 1) {  // 制作诗歌封面
             textRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_SIZE, DEFAULT_POETRY_COVER_FONT_SIZE));
             TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
-        }else {     // 制作诗歌标题
+        } else {     // 制作诗歌标题
             textRun.setFontSize(DEFAULT_POETRY_TITLE_FONT_SIZE);
             TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
         }

@@ -2,6 +2,7 @@ package claygminx.worshipppt.components.impl;
 
 import claygminx.worshipppt.common.entity.ScriptureNumberEntity;
 import claygminx.worshipppt.components.ScriptureService;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.util.ScriptureUtil;
@@ -28,7 +29,7 @@ public class PublicPrayScriptureStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() throws WorshipStepException {
+    public void execute() throws WorshipStepException, PPTLayoutException {
         try {
             List<ScriptureNumberEntity> publicScriptureNumberList = ScriptureUtil.parseNumbers(scriptureNumber);
             fillTitleAndScripture(getLayout(), scriptureService, publicScriptureNumberList);

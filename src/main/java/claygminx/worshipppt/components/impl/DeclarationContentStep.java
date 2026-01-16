@@ -9,6 +9,7 @@ import claygminx.worshipppt.common.entity.confession.ConfessionQueryResultEntity
 import claygminx.worshipppt.common.entity.confession.ConfessionVerseEntity;
 import claygminx.worshipppt.components.ConfessionService;
 import claygminx.worshipppt.exception.ConfessionServiceException;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.util.ConfessionUtil;
 import claygminx.worshipppt.util.TextUtil;
@@ -35,7 +36,6 @@ public class DeclarationContentStep extends AbstractWorshipStep {
     public final static DeclarationThemeEnum declarationTheme = DeclarationThemeEnum.WESTMINSTER_CONFESSION;
 
 
-
     // 在OGNl上下文容器获取服务
     private final ConfessionService confessionService;
     private final DeclarationEntity declarationEntity;
@@ -48,9 +48,9 @@ public class DeclarationContentStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() throws ScriptureNumberException {
+    public void execute() throws ScriptureNumberException, PPTLayoutException {
         logger.info("开始制作宣信内容幻灯片");
-        switch (declarationTheme){
+        switch (declarationTheme) {
             case WESTMINSTER_CONFESSION -> {
                 // 解析西敏信条章节参数，获取信条节实体列表， 获取格式化的列表
                 List<ConfessionVerseEntity> confessionVerseEntities = validateConfessionNumber(declarationEntity.getTitle());
@@ -65,23 +65,25 @@ public class DeclarationContentStep extends AbstractWorshipStep {
                 XMLSlideShow ppt = getPpt();
                 XSLFSlideLayout layout = ppt.findLayout(getLayout());
 
+
                 // 遍历列表， 每一节的内容制作一页幻灯片
                 for (int i = 0; i < confessionVerseEntities.size(); i++) {
                     XSLFSlide slide = ppt.createSlide(layout);
                     // 制作标题部分
-                    XSLFTextShape titlePlaceholder = slide.getPlaceholder(0);
-                    XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(titlePlaceholder);
+
+                    XSLFTextShape placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "标题部分");
+                    XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
                     titleTextRun.setText("《" + confessionVerseEntities.get(i).getChapterName().trim() + "》");
                     titleTextRun.setFontSize(AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE);
                     titleTextRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
                     TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
-                    
+
                     // 制作正文部分
-                    XSLFTextShape contentPlaceHolder = slide.getPlaceholder(1);
+                    placeholder = TextUtil.getPlaceholderSafely(slide, 1, getLayout(), "正文部分");
                     // 删除占位符内的文字
-                    contentPlaceHolder.clearText();
+                    placeholder.clearText();
                     // 创建文本段和文本段落填充正文部分
-                    XSLFTextParagraph contentParagraph = contentPlaceHolder.addNewTextParagraph();
+                    XSLFTextParagraph contentParagraph = placeholder.addNewTextParagraph();
                     useCustomLanguage(contentParagraph);
                     XSLFTextRun contentTextRun = contentParagraph.addNewTextRun();
                     contentTextRun.setText(formatConfessionContent.get(i));
@@ -107,14 +109,14 @@ public class DeclarationContentStep extends AbstractWorshipStep {
      * @return
      */
     private List<ConfessionVerseEntity> validateConfessionNumber(String title) throws ScriptureNumberException {
-        if (StringUtils.isBlank(title) || StringUtils.isEmpty(title)){
+        if (StringUtils.isBlank(title) || StringUtils.isEmpty(title)) {
             throw new ScriptureNumberException("宣信内容不能为空，请重新输入后再尝试制作");
         }
         int firstNumber = ConfessionUtil.getIndexOfFirstNumber(title);
         // step3: 判断书名是否输入正确
         String themeName = title.substring(0, firstNumber);
         logger.info("宣信内容：输入的主题名称[{}]", themeName);
-        if (!themeName.equals("西敏信条") && !themeName.equals("信条")){
+        if (!themeName.equals("西敏信条") && !themeName.equals("信条")) {
             // 无效的主题
             throw new ScriptureNumberException("请输入有效的宣信主题(西敏信条/信条)");
         }
@@ -147,9 +149,6 @@ public class DeclarationContentStep extends AbstractWorshipStep {
             }
         }
         return verseEntities;
-
-
-
 
 
         // TODO 加入章节编号的校验

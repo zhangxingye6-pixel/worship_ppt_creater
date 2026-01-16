@@ -1,5 +1,6 @@
 package claygminx.worshipppt.components.impl;
 
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.util.TextUtil;
 import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;
@@ -20,12 +21,12 @@ public class OdeToTheTrinityStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws PPTLayoutException {
         XMLSlideShow ppt = getPpt();
         XSLFSlideLayout layout = ppt.findLayout(getLayout());
         XSLFSlide slide = ppt.createSlide(layout);
 
-        XSLFTextShape placeholder = slide.getPlaceholder(0);
+        XSLFTextShape placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "");
         XSLFTextRun textRun = TextUtil.clearAndCreateTextRun(placeholder);
         textRun.setText(" " + title);
         textRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);

@@ -1,6 +1,8 @@
 package claygminx.worshipppt.util;
 
 import claygminx.worshipppt.common.Dict;
+import claygminx.worshipppt.exception.PPTLayoutException;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
 import org.apache.poi.xslf.usermodel.XSLFTextRun;
 import org.apache.poi.xslf.usermodel.XSLFTextShape;
 import org.slf4j.Logger;
@@ -69,6 +71,28 @@ public class TextUtil {
             logger.debug("{}cm => {} points", centimetre, points);
         }
         return points;
+    }
+
+    /**
+     * 安全获取幻灯片指定索引的占位符，失败则抛自定义异常
+     * @param slide 幻灯片对象
+     * @param index 占位符索引
+     * @param layout 母版布局名称（用于错误提示）
+     * @param placeholderDesc 占位符描述（标题/正文）
+     * @return 占位符对象
+     * @throws PPTLayoutException 占位符获取失败时抛出
+     */
+    public static XSLFTextShape getPlaceholderSafely(XSLFSlide slide, int index, String layout, String placeholderDesc) throws PPTLayoutException {
+        try {
+            XSLFTextShape placeholder = slide.getPlaceholder(index);
+            // 额外兜底：有些POI版本不会抛异常，只会返回null，需补充判断
+            if (placeholder == null) {
+                throw new PPTLayoutException("PPT母版-" + layout + "-" + placeholderDesc + "缺少必要的占位符（索引" + index + "），请添加后重新制作");
+            }
+            return placeholder;
+        } catch (Exception e) {
+            throw new PPTLayoutException("PPT母版-" + layout + "-" + placeholderDesc + "缺少必要的占位符（索引" + index + "），请添加后重新制作", e);
+        }
     }
 
 }
