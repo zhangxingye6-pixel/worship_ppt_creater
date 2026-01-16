@@ -646,9 +646,9 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                                     pptFile.getAbsolutePath() +
                                     "</p>" +
                                     "<p>你还需要做一些检查工作：</p>" +
-                                    "<ol><li><b>宣信内容需要手动制作；</b></li>" +
+                                    "<ol><li><b>歌谱是否越界；</b></li>" +
                                     "<li>圣餐诗歌需要手动调整以符合圣礼需要；</li>" +
-                                    "<li>还有更多需要细心检查的细节。</li></ol></html>";
+                                    "<li>还有更多需要细心检查的细节</li></ol></html>";
                             JTextPane f = createTextPane(message);
                             JOptionPane.showMessageDialog(frame, f, "提示", JOptionPane.INFORMATION_MESSAGE);
                         } catch (FileServiceException | WorshipStepException | PPTLayoutException | SystemException e) {
@@ -832,7 +832,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         logger.debug("检查宣信...");
 
         JTextField declarationTitleTextField = declarationTextFieldMap.get(DeclarationKey.TITLE);
-        JTextField declarationSpeakerTextField = declarationTextFieldMap.get(DeclarationKey.SPEAKER);
+//        JTextField declarationSpeakerTextField = declarationTextFieldMap.get(DeclarationKey.SPEAKER);
         if (isEmpty(declarationTitleTextField.getText())) {
             warn("需要填写宣信主题！");
             return false;

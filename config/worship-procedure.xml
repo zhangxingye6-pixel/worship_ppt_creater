@@ -61,8 +61,8 @@
         <worship-step name="敬拜诗歌" layout="诗歌标题" class="claygminx.worshipppt.components.impl.PoetryTitleStep" data="'以诗歌颂扬敬拜上帝', poetryContent.worshipPoetryAlbum.poetryList[1].name"/>
         <worship-step name="敬拜诗歌" layout="常规诗歌" class="claygminx.worshipppt.components.impl.RegularPoetryStep" data="poetryContent.worshipPoetryAlbum.poetryList.subList(1, 2)"/>
         <worship-step name="宣信证道" layout="宣信证道" class="claygminx.worshipppt.components.impl.FixedStep"/>
-        <worship-step name="宣信" layout="宣信标题" class="claygminx.worshipppt.components.impl.DeclarationTitleStep" data="declaration"/>
-        <worship-step name="宣信" layout="宣信内容" class="claygminx.worshipppt.components.impl.DeclarationContentStep"/>
+        <worship-step name="宣信" layout="宣信标题" class="claygminx.worshipppt.components.impl.DeclarationTitleStep" data="#confessionService, declaration"/>
+        <worship-step name="宣信" layout="宣信内容" class="claygminx.worshipppt.components.impl.DeclarationContentStep" data="#confessionService, declaration"/>
         <worship-step name="证道" layout="证道摘要" class="claygminx.worshipppt.components.impl.PreachSummaryStep" data="preach"/>
         <worship-step name="证道" layout="证道经文" class="claygminx.worshipppt.components.impl.PreachScriptureStep" data="#scriptureService, preach"/>
         <worship-step name="证道" layout="证道" class="claygminx.worshipppt.components.impl.PreachStep" data="preach"/>
@@ -114,8 +114,8 @@
         <worship-step name="敬拜诗歌" layout="诗歌标题" class="claygminx.worshipppt.components.impl.PoetryTitleStep" data="'以诗歌颂扬敬拜上帝', poetryContent.worshipPoetryAlbum.poetryList[1].name"/>
         <worship-step name="敬拜诗歌" layout="常规诗歌" class="claygminx.worshipppt.components.impl.RegularPoetryStep" data="poetryContent.worshipPoetryAlbum.poetryList.subList(1, 2)"/>
         <worship-step name="宣信证道" layout="宣信证道" class="claygminx.worshipppt.components.impl.FixedStep"/>
-        <worship-step name="宣信" layout="宣信标题" class="claygminx.worshipppt.components.impl.DeclarationTitleStep" data="declaration"/>
-        <worship-step name="宣信" layout="宣信内容" class="claygminx.worshipppt.components.impl.DeclarationContentStep"/>
+        <worship-step name="宣信" layout="宣信标题" class="claygminx.worshipppt.components.impl.DeclarationTitleStep" data="#confessionService, declaration"/>
+        <worship-step name="宣信" layout="宣信内容" class="claygminx.worshipppt.components.impl.DeclarationContentStep" data="#confessionService, declaration"/>
         <worship-step name="证道" layout="证道摘要" class="claygminx.worshipppt.components.impl.PreachSummaryStep" data="preach"/>
         <worship-step name="证道" layout="证道经文" class="claygminx.worshipppt.components.impl.PreachScriptureStep" data="#scriptureService, preach"/>
         <worship-step name="证道" layout="证道" class="claygminx.worshipppt.components.impl.PreachStep" data="preach"/>

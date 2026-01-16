@@ -37,8 +37,19 @@ public class HolyCommunionPoetryTitleStep extends AbstractWorshipStep {
                 List<XSLFTextRun> textRuns = paragraph.getTextRuns();
                 for (XSLFTextRun textRun : textRuns) {
                     String rawText = textRun.getRawText();
+                    if (rawText.contains("圣餐诗歌")){
+                        textRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
+                        textRun.setFontSize(AbstractWorshipStep.DEFAULT_STEP_COVER_FONT_SIZE);
+                        textRun.setBold(false);
+                        TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+                    }
+                    // 自定义占位符替换成诗歌名
                     if (rawText.contains(getCustomPlaceholder())) {
                         textRun.setText(rawText.replace(getCustomPlaceholder(), poetryEntity.getName()));
+                        textRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
+                        textRun.setFontSize(AbstractWorshipStep.DEFAULT_STEP_COVER_FONT_SIZE);
+                        textRun.setBold(true);
+                        TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
                         continue label1;
                     }
                 }
