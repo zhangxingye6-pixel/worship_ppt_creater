@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static claygminx.worshipppt.common.Dict.*;
 
@@ -855,7 +856,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         JTextField preachTitleTextField = preachTextFieldMap.get(PreachKey.TITLE);
         JTextField preachScriptureTextField = preachTextFieldMap.get(PreachKey.SCRIPTURE);
         if (isEmpty(preachTitleTextField.getText())) {
-            warn("证道主题是什么？");
+            warn("请输入证道主题");
             return false;
         }
         if (isEmpty(preachScriptureTextField.getText())) {
@@ -1147,21 +1148,44 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                             }
                             logger.debug(filePath);
 
-                            // 提取路径中的曲名，注意跨平台的兼容性
+                            /**
+                             * 提取路径中的曲名，注意跨平台的兼容性
+                             * 目前诗歌名称为"编号-曲名-调式"， 例如112-我要向高山举目-bB
+                             */
                             String[] split = filePath.split(Pattern.quote(File.separator));
-                            String poetryName = "";
+                            String formatPoetryName = "";
                             for (String s : split) {
                                 if (s.contains("-")) {
+                                    // 需要注意的是曲名中本来就带有'-'的， 比如16-He-Ne-Ni-A，所以要再加一个校验
+                                    // 除了获取第一个和最后一个'-'以外，好像没什么办法捏~
+                                    List<Character> charList = s.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
+                                    List<Integer> hyphenIndex = new ArrayList<>();
+                                    for (int j = 0; j < charList.size(); j++) {
+                                        Character c = charList.get(j);
+                                        if (c.charValue() == '-'){
+                                            hyphenIndex.add(j);
+                                        }
+                                    }
+                                    // 曲名就是第一个短线和最后一个短线之间的部分，调式就是最后一个短线之后的部分
                                     logger.info("poetryName = " + s);
+                                    int firstHyphen = hyphenIndex.get(0);
+                                    int lastHyphen = hyphenIndex.get(hyphenIndex.size() - 1);
+                                    String poetryName = s.substring(firstHyphen + 1, lastHyphen);
+                                    String poetryKey = s.substring(lastHyphen + 1);
+
                                     StringBuilder stringBuilder = new StringBuilder();
-                                    stringBuilder.append("《").append((s.split("-")[1]).trim()).append("》");
-                                    poetryName = stringBuilder.toString();
+                                    stringBuilder.append(poetryKey)
+                                            .append("调")
+                                            .append("《")
+                                            .append(poetryName)
+                                            .append("》");
+                                    formatPoetryName = stringBuilder.toString();
                                     break;
                                 }
                             }
-                            logger.debug("formatPoetryName = " + poetryName);
+                            logger.debug("formatPoetryName = " + formatPoetryName);
                             // 填充曲名和路径
-                            poetryNameTextField.setText(poetryName);
+                            poetryNameTextField.setText(formatPoetryName);
                             poetryDirectoryTextField.setText(filePath);
                             // 当曲名栏有非空的字符时，再次拖拽是不会修改内容的，某些情况下未免不太方便，目前移除这一段代码
 //                            if (poetryNameTextField.getText() == null || poetryNameTextField.getText().trim().isEmpty()) {
