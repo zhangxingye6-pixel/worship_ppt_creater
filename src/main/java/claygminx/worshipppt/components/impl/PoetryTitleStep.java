@@ -48,6 +48,7 @@ public class PoetryTitleStep extends AbstractWorshipStep {
         textRun.setFontFamily(fontStyle);
         if (idx == 1) {  // 制作诗歌封面
             textRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_SIZE, DEFAULT_POETRY_COVER_FONT_SIZE));
+            textRun.setFontSize(AbstractWorshipStep.DEFAULT_STEP_COVER_FONT_SIZE);
             TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
         } else {     // 制作诗歌标题
             textRun.setFontSize(DEFAULT_POETRY_TITLE_FONT_SIZE);
