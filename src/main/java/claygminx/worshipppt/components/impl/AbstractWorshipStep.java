@@ -31,7 +31,7 @@ public abstract class AbstractWorshipStep implements WorshipStep {
     // 默认文本常量
     public final static double DEFAULT_TITLE_FONT_SIZE = 40.0;
     public final static double DEFAULT_SCRIPTURE_FONT_SIZE = 35.0;
-    public final static String DEFAULT_FONT_FAMILY = "微软雅黑";
+    public final static String DEFAULT_FONT_FAMILY = "Microsoft YaHei";
     public final static double DEFAULT_STEP_COVER_FONT_SIZE = 60.0;
 
     /**

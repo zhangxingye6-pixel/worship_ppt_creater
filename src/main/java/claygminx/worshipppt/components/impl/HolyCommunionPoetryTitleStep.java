@@ -3,6 +3,7 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.entity.PoetryEntity;
 import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.util.TextUtil;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTTextCharacterProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.poi.xslf.usermodel.*;
@@ -46,10 +47,10 @@ public class HolyCommunionPoetryTitleStep extends AbstractWorshipStep {
                     // 自定义占位符替换成诗歌名
                     if (rawText.contains(getCustomPlaceholder())) {
                         textRun.setText(rawText.replace(getCustomPlaceholder(), poetryEntity.getName()));
-                        textRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
                         textRun.setFontSize(AbstractWorshipStep.DEFAULT_STEP_COVER_FONT_SIZE);
                         textRun.setBold(true);
                         TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+                        textRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
                         continue label1;
                     }
                 }
