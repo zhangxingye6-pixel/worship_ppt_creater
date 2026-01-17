@@ -173,6 +173,9 @@ public class ConfessionUtil {
             String[] verses = split[1].split("-");
             startVerse = Integer.parseInt(verses[0]);
             endVerse = Integer.parseInt(verses[1]);
+        }else{
+            startVerse = Integer.parseInt(split[1]);
+            endVerse = Integer.parseInt(split[1]);
         }
 
         ConfessionQueryRequestEntity requestEntity = new ConfessionQueryRequestEntity();

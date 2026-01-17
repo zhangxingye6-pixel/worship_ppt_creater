@@ -77,15 +77,15 @@ public class PreachScriptureStep extends AbstractWorshipStep {
                 slideCount++;
                 // 根据模板创建新的空白幻灯片
                 slide = ppt.createSlide(layout);
-                // 获取第一占位符（经文章节编号部分，不需要清空）
+                // 获取第0占位符（经文章节编号部分，不需要清空）
                 placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "标题部分");
                 XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
                 titleTextRun.setText(scriptureNumber);
                 titleTextRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
-                titleTextRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_SIZE, AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE));
+                titleTextRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.GENERAL_TITLE_FONT_SIZE, AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE));
                 TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
 
-                // 获取第二占位符（经文区域），并且清空，填充新的经文
+                // 获取第1占位符（经文区域），并且清空，填充新的经文
                 placeholder = TextUtil.getPlaceholderSafely(slide, 1, getLayout(), "正文部分");
                 placeholder.clearText();
                 logger.info("开始第{}张证道经文幻灯片...", slideCount);

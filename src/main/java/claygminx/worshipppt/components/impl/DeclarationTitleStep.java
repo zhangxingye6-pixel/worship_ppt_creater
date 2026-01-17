@@ -77,6 +77,7 @@ public class DeclarationTitleStep extends AbstractWorshipStep {
                         textRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
                         TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
                         logger.debug("填充了章名称：" + chapterName);
+                        break;
                     }
                 }
             }
