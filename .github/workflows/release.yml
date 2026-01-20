@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build-and-release:
     strategy:
@@ -24,7 +27,12 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Maven
-        run: mvn clean package
+        run: mvn clean package -Pwindows
+        if: matrix.os == 'windows-latest'
+
+      - name: Build with Maven
+        run: mvn clean package -Pmac
+        if: matrix.os == 'macos-latest'
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
