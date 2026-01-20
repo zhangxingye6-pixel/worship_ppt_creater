@@ -45,11 +45,19 @@ public class UpgradeServiceImpl implements UpgradeService {
     public String checkNewRelease() {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             logger.info("检查升级服务");
-            int connectTimeout = SystemConfig.getInt(Dict.GiteeProperty.CONNECT_TIMEOUT);
-            int connectRequestTimeout = SystemConfig.getInt(Dict.GiteeProperty.CONNECT_REQUEST_TIMEOUT);
-            int responseTimeout = SystemConfig.getInt(Dict.GiteeProperty.RESPONSE_TIMEOUT);
+            // 原gitee配置
+            // int connectTimeout = SystemConfig.getInt(Dict.GiteeProperty.CONNECT_TIMEOUT);
+            // int connectRequestTimeout = SystemConfig.getInt(Dict.GiteeProperty.CONNECT_REQUEST_TIMEOUT);
+            // int responseTimeout = SystemConfig.getInt(Dict.GiteeProperty.RESPONSE_TIMEOUT);
 
-            String url = SystemConfig.getString(Dict.GiteeProperty.URL);
+            int connectTimeout = SystemConfig.getInt(Dict.GithubProperty.CONNECT_TIMEOUT);
+            int connectRequestTimeout = SystemConfig.getInt(Dict.GithubProperty.CONNECT_REQUEST_TIMEOUT);
+            int responseTimeout = SystemConfig.getInt(Dict.GithubProperty.RESPONSE_TIMEOUT);
+
+            // String url = SystemConfig.getString(Dict.GiteeProperty.URL);
+            String owner = SystemConfig.getString(Dict.GithubProperty.OWNER);
+            String repo = SystemConfig.getString(Dict.GithubProperty.REPO);
+            String url = String.format("https://api.github.com/repos/%s/%s/releases/latest", owner, repo);
             logger.info("GET " + url);
             HttpGet httpGet = new HttpGet(url);
             httpGet.addHeader("Content-Type", "application/json;charset=UTF-8");
@@ -160,13 +168,17 @@ public class UpgradeServiceImpl implements UpgradeService {
             return "";
         }
 
-        Pattern downloadUrlPattern = null;
+        // Pattern downloadUrlPattern = null;
+        // String osName = System.getProperty("os.name");
+        // if (osName.startsWith("Mac")) {
+        //     downloadUrlPattern = Pattern.compile(SystemConfig.getString(Dict.GiteeProperty.MAC_REGX));
+        // } else if (osName.startsWith("Windows")) {
+        //     downloadUrlPattern = Pattern.compile(SystemConfig.getString(Dict.GiteeProperty.WIN_REGX));
+        // }
+
         String osName = System.getProperty("os.name");
-        if (osName.startsWith("Mac")) {
-            downloadUrlPattern = Pattern.compile(SystemConfig.getString(Dict.GiteeProperty.MAC_REGX));
-        } else if (osName.startsWith("Windows")) {
-            downloadUrlPattern = Pattern.compile(SystemConfig.getString(Dict.GiteeProperty.WIN_REGX));
-        }
+        String osType = osName.startsWith("Mac") ? "Mac版" : "Windows版";
+        Pattern downloadUrlPattern = Pattern.compile("\\[" + osType + "下载地址\\]\\((?<url>.+?)\\)");
 
         if (downloadUrlPattern != null) {
             String[] bodyLineArray = body.split("\n");

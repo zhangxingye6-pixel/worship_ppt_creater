@@ -4,18 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>claygminx</groupId>
-    <artifactId>worship-ppt</artifactId>
-    <version>v1.5.0</version>
+    <groupId>lazarus</groupId>
+    <artifactId>worship-ppt-auto-creater</artifactId>
+    <version>v1.5.1</version>
 
-    <name>Worship PPT</name>
+    <name>Worship PPT Creater</name>
     <description>一个用于自动制作敬拜PPT的小工具</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-        <built-by>Joseph Mark and Lazarus</built-by>
+        <built-by>Lazarus</built-by>
         <timestamp>${maven.build.timestamp}</timestamp>
     </properties>
 
@@ -47,6 +47,7 @@
             <artifactId>poi</artifactId>
             <version>5.2.5</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
