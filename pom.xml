@@ -191,7 +191,7 @@
                             <generateInstaller>false</generateInstaller>
                             <administratorRequired>false</administratorRequired>
                             <platform>mac</platform>
-                            <createZipball>false</createZipball>
+                            <createZipball>true</createZipball>
                             <createTarball>false</createTarball>
                             <jdkPath>${java.home}</jdkPath>
                             <jrePath>${java.home}</jrePath>

@@ -26,6 +26,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Build with Maven
         run: mvn clean package -Pwindows
         if: matrix.os == 'windows-latest'
