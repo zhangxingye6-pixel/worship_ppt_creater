@@ -36,7 +36,7 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
      * @throws FileServiceException
      */
     @Override
-    public List<WorshipStep> generate(XMLSlideShow ppt, WorshipEntity worshipEntity) throws FileServiceException {
+    public List<WorshipStep> generate(XMLSlideShow ppt, WorshipEntity worshipEntity) throws FileServiceException, PPTLayoutException {
         String xmlString = fileService.readWorshipProcedureXml();
 
         Document document;
@@ -73,7 +73,11 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
                 List<?> stepElements = modelElement.elements();
 
                 // 校验ppt模板的完整性
-                validateTemplateCompleteness(ppt, stepElements);
+                try {
+                    validateTemplateCompleteness(ppt, stepElements);
+                } catch (PPTLayoutException e) {
+                    throw new PPTLayoutException(e.getMessage(), e);
+                }
 
                 // 按照XML定义的顺序获取
                 for (Object stepElementObj : stepElements) {
@@ -90,7 +94,7 @@ public class WorshipProcedureServiceImpl implements WorshipProcedureService {
         return result;
     }
 
-    private static void validateTemplateCompleteness(XMLSlideShow ppt, List<?> stepElements) {
+    private static void validateTemplateCompleteness(XMLSlideShow ppt, List<?> stepElements) throws PPTLayoutException {
         // 第一母版中存在的版式名称列表
         List<String> slideLayouts = new ArrayList<>();
         for (XSLFSlideLayout slideLayout : ppt.getSlideMasters().get(0).getSlideLayouts()) {

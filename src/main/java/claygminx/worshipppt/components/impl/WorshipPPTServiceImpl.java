@@ -43,7 +43,7 @@ public class WorshipPPTServiceImpl implements WorshipPPTService {
     }
 
     @Override
-    public void make() throws FileServiceException, WorshipStepException {
+    public void make() throws FileServiceException, WorshipStepException, PPTLayoutException {
         // 1.准备PPT文件
         try {
             fileService.copyTemplate(file);
@@ -87,7 +87,7 @@ public class WorshipPPTServiceImpl implements WorshipPPTService {
         } catch (FileServiceException | WorshipStepException e) {
             throw e;
         } catch (PPTLayoutException e) {
-            throw new SystemException(e.getMessage(), e);
+            throw new PPTLayoutException(e.getMessage(), e);
         } catch (Exception e){
             throw new SystemException("出现未知错误！", e);
         }

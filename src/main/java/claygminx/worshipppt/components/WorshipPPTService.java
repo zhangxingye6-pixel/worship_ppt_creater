@@ -1,6 +1,7 @@
 package claygminx.worshipppt.components;
 
 import claygminx.worshipppt.exception.FileServiceException;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.WorshipStepException;
 
 /**
@@ -11,6 +12,6 @@ public interface WorshipPPTService {
     /**
      * 制作敬拜PPT
      */
-    void make() throws FileServiceException, WorshipStepException;
+    void make() throws FileServiceException, WorshipStepException, PPTLayoutException;
 
 }

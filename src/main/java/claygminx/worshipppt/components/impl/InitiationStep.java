@@ -2,6 +2,7 @@ package claygminx.worshipppt.components.impl;
 
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.PoetryEntity;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.SystemException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.common.Dict;
@@ -32,7 +33,7 @@ public class InitiationStep extends RegularPoetryStep {
     }
 
     @Override
-    public void execute() throws WorshipStepException {
+    public void execute() throws WorshipStepException, PPTLayoutException {
         XMLSlideShow sourcePpt = getSourcePpt();
         XMLSlideShow targetPpt = getPpt();
         int poetrySlideOrder = SystemConfig.getInt(Dict.PPTProperty.MASTER_INITIATION_POETRY_SLIDE_ORDER);

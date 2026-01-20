@@ -5,6 +5,7 @@ import claygminx.worshipppt.common.entity.ScriptureEntity;
 import claygminx.worshipppt.common.entity.ScriptureNumberEntity;
 import claygminx.worshipppt.components.ScriptureService;
 import claygminx.worshipppt.components.WorshipStep;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.ScriptureServiceException;
 import claygminx.worshipppt.common.Dict;
 import claygminx.worshipppt.util.TextUtil;
@@ -30,7 +31,7 @@ public abstract class AbstractWorshipStep implements WorshipStep {
     // 默认文本常量
     public final static double DEFAULT_TITLE_FONT_SIZE = 40.0;
     public final static double DEFAULT_SCRIPTURE_FONT_SIZE = 35.0;
-    public final static String DEFAULT_FONT_FAMILY = "微软雅黑";
+    public final static String DEFAULT_FONT_FAMILY = "Microsoft YaHei";
     public final static double DEFAULT_STEP_COVER_FONT_SIZE = 60.0;
 
     /**
@@ -106,15 +107,15 @@ public abstract class AbstractWorshipStep implements WorshipStep {
      * @param scriptureService 经文服务对象
      * @param scriptureNumberList 经文编号对象列表
      */
-    protected void fillTitleAndScripture(String layoutName, ScriptureService scriptureService, List<ScriptureNumberEntity> scriptureNumberList) {
+    protected void fillTitleAndScripture(String layoutName, ScriptureService scriptureService, List<ScriptureNumberEntity> scriptureNumberList) throws PPTLayoutException {
         String[] titleAndScripture = getTitleAndScripture(scriptureService, scriptureNumberList);
 
         XMLSlideShow ppt = getPpt();
         XSLFSlideLayout layout = ppt.findLayout(layoutName);
         XSLFSlide slide = ppt.createSlide(layout);
         // 填充标题
-        XSLFTextShape placeholder = slide.getPlaceholder(0);
-        XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
+        XSLFTextShape titlePlaceHolder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "");
+        XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(titlePlaceHolder);
         titleTextRun.setText(titleAndScripture[0]);
         TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
         double titleFontSize = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.GENERAL_TITLE_FONT_SIZE, DEFAULT_TITLE_FONT_SIZE);
@@ -124,14 +125,14 @@ public abstract class AbstractWorshipStep implements WorshipStep {
         }
 
         // 填充经文
-        placeholder = slide.getPlaceholder(1);
-        placeholder.clearText();
-        XSLFTextRun scriptureTextRun = TextUtil.clearAndCreateTextRun(placeholder);
+        XSLFTextShape contentPlaceHolder = TextUtil.getPlaceholderSafely(slide, 1, getLayout(), "");
+        contentPlaceHolder.clearText();
+        XSLFTextRun scriptureTextRun = TextUtil.clearAndCreateTextRun(contentPlaceHolder);
         TextUtil.setScriptureFontColor(scriptureTextRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
         scriptureTextRun.setText(titleAndScripture[1]);
         double scriptureFontSize = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.GENERAL_SCRIPTURE_FONT_SIZE, DEFAULT_SCRIPTURE_FONT_SIZE);
         scriptureTextRun.setFontSize(scriptureFontSize);
-        List<XSLFTextParagraph> paragraphs = placeholder.getTextParagraphs();
+        List<XSLFTextParagraph> paragraphs = contentPlaceHolder.getTextParagraphs();
         for (XSLFTextParagraph paragraph : paragraphs) {
             useCustomLanguage(paragraph);
         }

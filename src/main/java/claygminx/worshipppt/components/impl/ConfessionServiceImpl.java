@@ -95,7 +95,7 @@ public class ConfessionServiceImpl implements ConfessionService {
         try (Connection connection = getConnection()) {
             ConfessionQueryResultEntity resultEntity = new ConfessionQueryResultEntity();   // 封装返回对象
             logger.info("处理查询参数startChapter = {}, endChapter = {}, startVerse = {}, endVerse = {}", startChapter, endChapter, startVerse, endVerse);
-            if (startChapter != 0 && endChapter == 0 && startVerse != 0 && endVerse == 0) {
+            if (startChapter == endChapter && startVerse == endVerse) {
                 /**
                  * situation1: 单独一节查询
                  */
@@ -399,7 +399,7 @@ public class ConfessionServiceImpl implements ConfessionService {
         int startVerse = requestEntity.getStartVerse();
         int endChapter = requestEntity.getEndChapter();
         int endVerse = requestEntity.getEndVerse();
-        return confessionService.queryRange(startChapter, startVerse, endChapter, endVerse);
+        return confessionService.queryRange(startChapter, endChapter, startVerse, endVerse);
     }
 
     /**

@@ -6,6 +6,7 @@ import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.DeclarationEntity;
 import claygminx.worshipppt.common.entity.confession.ConfessionQueryRequestEntity;
 import claygminx.worshipppt.components.ConfessionService;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.util.ConfessionUtil;
 import claygminx.worshipppt.util.TextUtil;
@@ -34,7 +35,7 @@ public class DeclarationTitleStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() throws ScriptureNumberException {
+    public void execute() throws ScriptureNumberException, PPTLayoutException {
         // step1: 数据准备
         String title = declarationEntity.getTitle();
         int firstNumber = ConfessionUtil.getIndexOfFirstNumber(title);
@@ -54,7 +55,7 @@ public class DeclarationTitleStep extends AbstractWorshipStep {
         XSLFSlideLayout layout = ppt.findLayout(getLayout());
         XSLFSlide slide = ppt.createSlide(layout);
 
-        XSLFTextShape placeholder = slide.getPlaceholder(0);
+        XSLFTextShape placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "标题部分");
         List<XSLFTextParagraph> paragraphs = placeholder.getTextParagraphs();
         int index = 0;
         for (XSLFTextParagraph paragraph : paragraphs) {
@@ -76,6 +77,7 @@ public class DeclarationTitleStep extends AbstractWorshipStep {
                         textRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
                         TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
                         logger.debug("填充了章名称：" + chapterName);
+                        break;
                     }
                 }
             }

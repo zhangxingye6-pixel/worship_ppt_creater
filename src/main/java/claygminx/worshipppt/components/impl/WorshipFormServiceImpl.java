@@ -3,11 +3,8 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.Dict;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.components.*;
-import claygminx.worshipppt.exception.FileServiceException;
-import claygminx.worshipppt.exception.ScriptureNumberException;
-import claygminx.worshipppt.exception.SystemException;
+import claygminx.worshipppt.exception.*;
 import claygminx.worshipppt.common.entity.*;
-import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.util.ScriptureUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static claygminx.worshipppt.common.Dict.*;
 
@@ -649,12 +647,12 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                                     pptFile.getAbsolutePath() +
                                     "</p>" +
                                     "<p>你还需要做一些检查工作：</p>" +
-                                    "<ol><li><b>宣信内容需要手动制作；</b></li>" +
+                                    "<ol><li><b>歌谱是否越界；</b></li>" +
                                     "<li>圣餐诗歌需要手动调整以符合圣礼需要；</li>" +
-                                    "<li>还有更多需要细心检查的细节。</li></ol></html>";
+                                    "<li>还有更多需要细心检查的细节</li></ol></html>";
                             JTextPane f = createTextPane(message);
                             JOptionPane.showMessageDialog(frame, f, "提示", JOptionPane.INFORMATION_MESSAGE);
-                        } catch (FileServiceException | WorshipStepException | SystemException e) {
+                        } catch (FileServiceException | WorshipStepException | PPTLayoutException | SystemException e) {
                             pm.close();
                             logger.error("制作PPT时出现错误！", e);
                             JOptionPane.showMessageDialog(frame, e.getMessage(), "提示", JOptionPane.ERROR_MESSAGE);
@@ -695,17 +693,17 @@ public class WorshipFormServiceImpl implements WorshipFormService {
             }
         }
         if (isEmpty(selectedModel)) {
-            warn("请先选择敬拜模式");
+            warn("请选择敬拜模式");
             return false;
         }
         String worshipDate = worshipDateTextField.getText();
         if (isEmpty(worshipDate)) {
-            warn("请输入敬拜日期！");
+            warn("请输入敬拜日期");
             return false;
         }
         String churchName = churchNameTextField.getText();
         if (isEmpty(churchName)) {
-            logger.warn("未输入教会名称！");
+            logger.warn("未输入教会名称");
         }
 
         CoverEntity cover = new CoverEntity();
@@ -835,7 +833,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         logger.debug("检查宣信...");
 
         JTextField declarationTitleTextField = declarationTextFieldMap.get(DeclarationKey.TITLE);
-        JTextField declarationSpeakerTextField = declarationTextFieldMap.get(DeclarationKey.SPEAKER);
+//        JTextField declarationSpeakerTextField = declarationTextFieldMap.get(DeclarationKey.SPEAKER);
         if (isEmpty(declarationTitleTextField.getText())) {
             warn("需要填写宣信主题！");
             return false;
@@ -858,7 +856,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         JTextField preachTitleTextField = preachTextFieldMap.get(PreachKey.TITLE);
         JTextField preachScriptureTextField = preachTextFieldMap.get(PreachKey.SCRIPTURE);
         if (isEmpty(preachTitleTextField.getText())) {
-            warn("证道主题是什么？");
+            warn("请输入证道主题");
             return false;
         }
         if (isEmpty(preachScriptureTextField.getText())) {
@@ -1150,21 +1148,44 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                             }
                             logger.debug(filePath);
 
-                            // 提取路径中的曲名，注意跨平台的兼容性
+                            /**
+                             * 提取路径中的曲名，注意跨平台的兼容性
+                             * 目前诗歌名称为"编号-曲名-调式"， 例如112-我要向高山举目-bB
+                             */
                             String[] split = filePath.split(Pattern.quote(File.separator));
-                            String poetryName = "";
+                            String formatPoetryName = "";
                             for (String s : split) {
                                 if (s.contains("-")) {
+                                    // 需要注意的是曲名中本来就带有'-'的， 比如16-He-Ne-Ni-A，所以要再加一个校验
+                                    // 除了获取第一个和最后一个'-'以外，好像没什么办法捏~
+                                    List<Character> charList = s.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
+                                    List<Integer> hyphenIndex = new ArrayList<>();
+                                    for (int j = 0; j < charList.size(); j++) {
+                                        Character c = charList.get(j);
+                                        if (c.charValue() == '-'){
+                                            hyphenIndex.add(j);
+                                        }
+                                    }
+                                    // 曲名就是第一个短线和最后一个短线之间的部分，调式就是最后一个短线之后的部分
                                     logger.info("poetryName = " + s);
+                                    int firstHyphen = hyphenIndex.get(0);
+                                    int lastHyphen = hyphenIndex.get(hyphenIndex.size() - 1);
+                                    String poetryName = s.substring(firstHyphen + 1, lastHyphen);
+                                    String poetryKey = s.substring(lastHyphen + 1);
+
                                     StringBuilder stringBuilder = new StringBuilder();
-                                    stringBuilder.append("《").append((s.split("-")[1]).trim()).append("》");
-                                    poetryName = stringBuilder.toString();
+                                    stringBuilder.append(poetryKey)
+                                            .append("调")
+                                            .append("《")
+                                            .append(poetryName)
+                                            .append("》");
+                                    formatPoetryName = stringBuilder.toString();
                                     break;
                                 }
                             }
-                            logger.debug("formatPoetryName = " + poetryName);
+                            logger.debug("formatPoetryName = " + formatPoetryName);
                             // 填充曲名和路径
-                            poetryNameTextField.setText(poetryName);
+                            poetryNameTextField.setText(formatPoetryName);
                             poetryDirectoryTextField.setText(filePath);
                             // 当曲名栏有非空的字符时，再次拖拽是不会修改内容的，某些情况下未免不太方便，目前移除这一段代码
 //                            if (poetryNameTextField.getText() == null || poetryNameTextField.getText().trim().isEmpty()) {

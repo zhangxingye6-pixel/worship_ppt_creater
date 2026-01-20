@@ -5,6 +5,7 @@ import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.PreachEntity;
 import claygminx.worshipppt.common.entity.ScriptureEntity;
 import claygminx.worshipppt.components.ScriptureService;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.util.ScriptureUtil;
@@ -40,7 +41,7 @@ public class PreachScriptureStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() throws WorshipStepException {
+    public void execute() throws WorshipStepException, PPTLayoutException {
         String scriptureNumber;
         scriptureNumber = preachEntity.getScriptureNumber();
         logger.info("开始制作证道经文" + scriptureNumber);
@@ -65,33 +66,33 @@ public class PreachScriptureStep extends AbstractWorshipStep {
 
         // 按预设的模板，每一行最多32个中文字符，每一页行数最佳是6行，尽量控制最多8行
         XSLFSlide slide = null;
-        XSLFTextShape placeholder;
+        XSLFTextShape placeholder = null;
         int lineCount = 0, slideCount = 0;
         for (int i = 0; i < scriptureArray.length; i++) {
             // 当前页面中已经添加了几节经文
-            int currentVerseCount;
+//            int currentVerseCount;
 
             String scriptureItem = scriptureArray[i];
             if (lineCount == 0) {
                 slideCount++;
                 // 根据模板创建新的空白幻灯片
                 slide = ppt.createSlide(layout);
-                // 获取第一占位符（经文章节编号部分，不需要清空）
-                placeholder = slide.getPlaceholder(0);
+                // 获取第0占位符（经文章节编号部分，不需要清空）
+                placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "标题部分");
                 XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
                 titleTextRun.setText(scriptureNumber);
                 titleTextRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
-                titleTextRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.POETRY_TITLE_FONT_SIZE, AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE));
+                titleTextRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.GENERAL_TITLE_FONT_SIZE, AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE));
                 TextUtil.setScriptureFontColor(titleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
 
-                // 获取第二占位符（经文区域），并且清空，填充新的经文
-                placeholder = slide.getPlaceholder(1);
+                // 获取第1占位符（经文区域），并且清空，填充新的经文
+                placeholder = TextUtil.getPlaceholderSafely(slide, 1, getLayout(), "正文部分");
                 placeholder.clearText();
                 logger.info("开始第{}张证道经文幻灯片...", slideCount);
             }
 
             // 往正文添加一段经文，注意，可能因为经文字数较多，一行容不下
-            placeholder = slide.getPlaceholder(1);
+            placeholder = TextUtil.getPlaceholderSafely(slide, 1, getLayout(), "正文部分");
             XSLFTextParagraph paragraph = placeholder.addNewTextParagraph();
             useCustomLanguage(paragraph);
             XSLFTextRun textRun = paragraph.addNewTextRun();
@@ -101,10 +102,10 @@ public class PreachScriptureStep extends AbstractWorshipStep {
             // 每一节的颜色不同，与读经颜色顺序保持一致，先蓝色后黑色
             if(i % 2 == 1){
                 // 奇数行，显示蓝色字体
-                TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLUE);
+                TextUtil.setScriptureFontColor(textRun, claygminx.worshipppt.util.TextUtil.FontColor.RGB_FONT_COLOR_BLUE);
             }else{
                 // 偶数行，显示黑色字体
-                TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
+                TextUtil.setScriptureFontColor(textRun, claygminx.worshipppt.util.TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
             }
 
             // 控制幻灯片里经文的数量和幻灯片的数量

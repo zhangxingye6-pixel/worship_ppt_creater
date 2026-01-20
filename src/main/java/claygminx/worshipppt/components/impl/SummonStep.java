@@ -4,6 +4,7 @@ import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.ScriptureEntity;
 import claygminx.worshipppt.common.entity.ScriptureNumberEntity;
 import claygminx.worshipppt.components.ScriptureService;
+import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.exception.ScriptureNumberException;
 import claygminx.worshipppt.exception.ScriptureServiceException;
 import claygminx.worshipppt.exception.WorshipStepException;
@@ -34,7 +35,7 @@ public class SummonStep extends AbstractWorshipStep {
     }
 
     @Override
-    public void execute() throws WorshipStepException {
+    public void execute() throws WorshipStepException, PPTLayoutException {
         ScriptureNumberEntity scriptureNumberEntity;
         try {
             scriptureNumberEntity = ScriptureUtil.parseNumber(scriptureNumber);
@@ -54,7 +55,8 @@ public class SummonStep extends AbstractWorshipStep {
         XSLFSlide slide = ppt.createSlide(layout);
 
         // 宣召经文标题
-        XSLFTextShape placeholder = slide.getPlaceholder(0);
+        XSLFTextShape placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "标题部分");
+
         XSLFTextRun titleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
         titleTextRun.setFontSize(AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE);
         titleTextRun.setText(scriptureNumber);
@@ -64,7 +66,7 @@ public class SummonStep extends AbstractWorshipStep {
         // 经文部分
         double scriptureFontSize = SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.SUMMON_SCRIPTURE_FONT_SIZE, AbstractWorshipStep.DEFAULT_SCRIPTURE_FONT_SIZE);
 
-        placeholder = slide.getPlaceholder(1);
+        placeholder = TextUtil.getPlaceholderSafely(slide, 1, getLayout(), "正文部分");
         placeholder.clearText();
         XSLFTextParagraph paragraph = placeholder.addNewTextParagraph();
         useCustomLanguage(paragraph);
