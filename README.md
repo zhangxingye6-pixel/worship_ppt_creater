@@ -2,9 +2,9 @@
 
 一个用于自动制作敬拜 PPT 文件的 Java 应用程序。
 
-由马克约瑟弟兄制作。
+由马克约瑟弟兄制作，且目前由另一个上帝蒙爱的弟兄稍加升级。
 
-![Version](https://img.shields.io/badge/version-v1.4.0-blue)
+![Version](https://img.shields.io/badge/version-v1.5.1-black)
 [![GitHub license](https://img.shields.io/github/license/ClayGminx/worship-ppt)](https://github.com/ClayGminx/worship-ppt/blob/master/LICENSE)
 ![poi-ooxml dependency](https://img.shields.io/badge/poi--ooxml-v5.2.2-9cf)
 ![sqlite-jdbc dependency](https://img.shields.io/badge/sqlite--jdbc-3.39.2.0-9cf)
@@ -15,9 +15,9 @@
 
 此应用程序可以满足以下三种敬拜模式：
 
-1. 无圣餐
-2. 有圣餐
-3. 有入会
+1. 常规
+2. 圣餐
+3. 入会
 
 ## 使用方式
 
@@ -35,9 +35,9 @@
 
 你可以从菜单栏中依次点击选项->自定义配置，输入你的配置文件的完全路径或相对路径。默认配置文件位于“config”文件夹里。
 
-`worship-ppt.properties`有大量的配置选项。你可以修改制作PPT文件的参数、更换圣经数据，以及更多配置选项。
+`worship-ppt.config`有大量的配置选项。你可以修改制作PPT文件的参数、更换圣经数据，以及更多配置选项; 有大量注释教你怎么修改，相信你看得懂。
 
-`worship-ppt.properties`有大量注释教你怎么修改，相信你看得懂。
+预留了一些用户接口，比如宣信阶段，可以通过配置修改宣信主题（如西敏信条、…………）
 
 ### PPT模板
 
@@ -51,9 +51,7 @@
 
 ### 敬拜流程
 
-三种敬拜模式都有自己的流程，它们的流程定义在`worship-procedure.xml`。
-
-`worship-ppt.properties`可以配置`worship-procedure.xml`的位置，默认放在“config”文件夹里。
+三种敬拜模式都有自己的流程，它们的流程定义在`worship-procedure.xml`。如果修改标签的顺序，制作而成的PPT也会随之修改
 
 在该文件里，`model`定义了敬拜模式，而`worship-step`定义了敬拜阶段，你可以在该文件删除一个`worship-step`，
 但是若要增加一个worship-ppt尚未支持的新阶段，就会因不被支持而出错。（不妨多为软件作者祈祷，制作出一个更加通用的软件来。）
@@ -61,5 +59,7 @@
 ### 圣经
 
 敬拜PPT文件工具用 SQLite 来存储圣经，以扩展名`.db`的文件格式默认放在“数据库”文件夹里。默认使用“和合本”。
-若要使用其它版本的圣经，你可以在`worship-ppt.properties`中修改`SQLite.path`值。
+若要使用其它版本的圣经，你可以在`worship-ppt.properties`中修改`SQLite.path`值。（目前还没有其他版本的数据库呦）
 注意，圣经数据库要有`Bible`和`BookNames`两张表，不妨参考“和合本.db”来制作。
+
+（一位蒙爱的弟兄：）在某一版本中，为了适应当前的敬拜流程，新建了宣信内容的数据库`信章信条.db`；信条总会有讲完的一天，所以如果需要切换宣信主题，可以在配置中新型修改。但前提是已经实现了相关的业务代码。当前版本为了应急，扩展性不是特别好，需要进一步的更新
