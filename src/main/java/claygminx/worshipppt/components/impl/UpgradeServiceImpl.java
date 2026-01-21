@@ -1,7 +1,7 @@
 package claygminx.worshipppt.components.impl;
 
 import claygminx.worshipppt.common.config.SystemConfig;
-import claygminx.worshipppt.common.entity.GiteeReleaseEntity;
+import claygminx.worshipppt.common.entity.GithubReleaseEntity;
 import claygminx.worshipppt.components.UpgradeService;
 import claygminx.worshipppt.exception.SystemException;
 import claygminx.worshipppt.common.Dict;
@@ -12,6 +12,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class UpgradeServiceImpl implements UpgradeService {
 
@@ -42,26 +40,28 @@ public class UpgradeServiceImpl implements UpgradeService {
     }
 
     @Override
-    public String checkNewRelease() {
+    public GithubReleaseEntity checkNewRelease() {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             logger.info("检查升级服务");
             // 原gitee配置
-            // int connectTimeout = SystemConfig.getInt(Dict.GiteeProperty.CONNECT_TIMEOUT);
-            // int connectRequestTimeout = SystemConfig.getInt(Dict.GiteeProperty.CONNECT_REQUEST_TIMEOUT);
-            // int responseTimeout = SystemConfig.getInt(Dict.GiteeProperty.RESPONSE_TIMEOUT);
+//             int connectTimeout = SystemConfig.getInt(Dict.GiteeProperty.CONNECT_TIMEOUT);
+//             int connectRequestTimeout = SystemConfig.getInt(Dict.GiteeProperty.CONNECT_REQUEST_TIMEOUT);
+//             int responseTimeout = SystemConfig.getInt(Dict.GiteeProperty.RESPONSE_TIMEOUT);
 
             int connectTimeout = SystemConfig.getInt(Dict.GithubProperty.CONNECT_TIMEOUT);
             int connectRequestTimeout = SystemConfig.getInt(Dict.GithubProperty.CONNECT_REQUEST_TIMEOUT);
             int responseTimeout = SystemConfig.getInt(Dict.GithubProperty.RESPONSE_TIMEOUT);
 
-            // String url = SystemConfig.getString(Dict.GiteeProperty.URL);
+//             String url = SystemConfig.getString(Dict.GiteeProperty.URL);
             String owner = SystemConfig.getString(Dict.GithubProperty.OWNER);
             String repo = SystemConfig.getString(Dict.GithubProperty.REPO);
             String url = String.format("https://api.github.com/repos/%s/%s/releases/latest", owner, repo);
-            logger.info("GET " + url);
+            logger.info("github request build [" + "GET " + url + "]");
             HttpGet httpGet = new HttpGet(url);
-            httpGet.addHeader("Content-Type", "application/json;charset=UTF-8");
-            httpGet.addHeader("Accept", "application/json;charset=UTF-8");
+//            httpGet.addHeader("Content-Type", "application/json;charset=UTF-8");
+            // Github Rest Api "Get the latest release"请求
+            httpGet.addHeader("Accept", "application/vnd.github+json");
+            httpGet.addHeader("X-Github-Api-Version", "2022-11-28");
             RequestConfig requestConfig = RequestConfig.custom()
                     .setConnectTimeout(connectTimeout, TimeUnit.SECONDS)
                     .setConnectionRequestTimeout(connectRequestTimeout, TimeUnit.SECONDS)
@@ -75,29 +75,28 @@ public class UpgradeServiceImpl implements UpgradeService {
                 logger.warn("{} 返回404！", url);
             } else if (HttpStatus.SC_OK == response.getCode()) {
                 logger.info("{} 返回200！", url);
-                StringBuilder responseBuilder = new StringBuilder();
+//                StringBuilder responseBuilder = new StringBuilder();
 
-                try (Scanner scanner = new Scanner(response.getEntity().getContent(), StandardCharsets.UTF_8.name())) {
-                    while (scanner.hasNextLine()) {
-                        responseBuilder.append(scanner.nextLine());
-                    }
-                }
-                String responseString = responseBuilder.toString();
+//                try (Scanner scanner = new Scanner(response.getEntity().getContent(), StandardCharsets.UTF_8.name())) {
+//                    while (scanner.hasNextLine()) {
+//                        responseBuilder.append(scanner.nextLine());
+//                    }
+//                }
+//                String responseString = responseBuilder.toString();
+                String responseString = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
                 // 转码
                 responseString = new String(responseString.getBytes(), System.getProperty("file.encoding"));
                 logger.info(responseString);
 
-                GiteeReleaseEntity remoteReleaseEntity = new Gson().fromJson(responseString, GiteeReleaseEntity.class);
-                GiteeReleaseEntity thisReleaseEntity = getThisProjectReleaseEntity();
+                GithubReleaseEntity remoteReleaseEntity = new Gson().fromJson(responseString, GithubReleaseEntity.class);
+                logger.info("response [" + remoteReleaseEntity + "]");
+                GithubReleaseEntity thisReleaseEntity = getThisProjectReleaseEntity();
                 if (compareVersion(thisReleaseEntity, remoteReleaseEntity) < 0) {
                     // 小于远程发行包版本，所以应提示要升级
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String downloadUrl = getDownloadUrlFromGitHubBody(remoteReleaseEntity.body());
+//                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String downloadUrl = getDownloadUrlFromGitHubBody(remoteReleaseEntity);
                     if (downloadUrl != null) {
-                        return "有新的版本" + remoteReleaseEntity.tag_name() + "\n"
-                                + "发布于" + sdf.format(remoteReleaseEntity.created_at()) + "\n"
-                                + "新版本下载地址：\n"
-                                + downloadUrl;
+                        return remoteReleaseEntity;
                     }
                     logger.warn("远程发行包缺失下载地址！");
                 } else {
@@ -112,13 +111,13 @@ public class UpgradeServiceImpl implements UpgradeService {
         return null;
     }
 
-    protected GiteeReleaseEntity getThisProjectReleaseEntity() {
+    protected GithubReleaseEntity getThisProjectReleaseEntity() {
         String projectVersion = SystemConfig.getString(Dict.ProjectProperty.VERSION);
         String sProjectTime = SystemConfig.getString(Dict.ProjectProperty.TIME);
         String projectTimeFormat = SystemConfig.getString(Dict.ProjectProperty.TIME_FORMAT);
         try {
             Date oProjectTime = new SimpleDateFormat(projectTimeFormat).parse(sProjectTime);
-            return new GiteeReleaseEntity()
+            return new GithubReleaseEntity()
                     .created_at(oProjectTime)
                     .name(projectVersion)
                     .tag_name(projectVersion);
@@ -128,7 +127,7 @@ public class UpgradeServiceImpl implements UpgradeService {
         }
     }
 
-    protected int compareVersion(GiteeReleaseEntity thisEntity, GiteeReleaseEntity otherEntity) {
+    protected int compareVersion(GithubReleaseEntity thisEntity, GithubReleaseEntity otherEntity) {
         String thisTagName = thisEntity.tag_name();
         String otherTagName = otherEntity.tag_name();
         int[] thisVersion = parseVersion(thisTagName);
@@ -163,33 +162,10 @@ public class UpgradeServiceImpl implements UpgradeService {
      * @param body 消息体
      * @return 下载地址
      */
-    protected String getDownloadUrlFromGitHubBody(String body) {
+    protected String getDownloadUrlFromGitHubBody(GithubReleaseEntity body) {
         if (body == null) {
             return "";
         }
-
-        // Pattern downloadUrlPattern = null;
-        // String osName = System.getProperty("os.name");
-        // if (osName.startsWith("Mac")) {
-        //     downloadUrlPattern = Pattern.compile(SystemConfig.getString(Dict.GiteeProperty.MAC_REGX));
-        // } else if (osName.startsWith("Windows")) {
-        //     downloadUrlPattern = Pattern.compile(SystemConfig.getString(Dict.GiteeProperty.WIN_REGX));
-        // }
-
-        String osName = System.getProperty("os.name");
-        String osType = osName.startsWith("Mac") ? "Mac版" : "Windows版";
-        Pattern downloadUrlPattern = Pattern.compile("\\[" + osType + "下载地址\\]\\((?<url>.+?)\\)");
-
-        if (downloadUrlPattern != null) {
-            String[] bodyLineArray = body.split("\n");
-            for (String line : bodyLineArray) {
-                Matcher matcher = downloadUrlPattern.matcher(line);
-                if (matcher.find()) {
-                    return matcher.group("url");
-                }
-            }
-        }
-
-        return null;
+        return body.html_url();
     }
 }

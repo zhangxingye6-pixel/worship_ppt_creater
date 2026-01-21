@@ -19,7 +19,7 @@ public class ReleaseEntity implements Serializable, Comparable<ReleaseEntity> {
     private String name;
 
     /**
-     * fa'xing
+     * 发行包描述
      */
     private String body;
 

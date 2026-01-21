@@ -1,6 +1,5 @@
 package claygminx.worshipppt.components.impl;
 
-import claygminx.worshipppt.common.Dict;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.components.*;
 import claygminx.worshipppt.exception.*;
@@ -10,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.HyperlinkEvent;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -18,6 +18,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -1040,20 +1041,86 @@ public class WorshipFormServiceImpl implements WorshipFormService {
      */
     private void checkVersion() {
         threadPool.execute(() -> {
-            String info = upgradeService.checkNewRelease();
-            if (info != null) {
-                String[] infos = info.split("\n");
-                StringBuilder msgBuilder = new StringBuilder("<html><div style=\"padding: 0 20px; font-family: Consolas, PingFang SC, Microsoft YaHei\">");
-                for (String s : infos) {
+            GithubReleaseEntity githubReleaseEntity = upgradeService.checkNewRelease();
+            if (githubReleaseEntity != null) {
+                logger.debug("githubReleaseEntity: " + githubReleaseEntity);
+                // 解析响应体
+                List<String> remoteInfo = parseReleaseResponse(githubReleaseEntity);
+                if (remoteInfo == null){
+                    warn("远程版本信息解析错误");
+                }
+                String[] versionInfo = remoteInfo.get(0).split("\n");
+                logger.debug("versionInfo: " + versionInfo);
+                String[] bodyInfo = remoteInfo.get(1).split("\n");
+                logger.debug("bodyinfo: " + bodyInfo);
+
+
+                // 上半部分, 显示新版本信息;
+                StringBuilder msgBuilder = new StringBuilder("<html><div style=\"padding: 0 20px; " +
+                        "font-family: Consolas, PingFang SC, Microsoft YaHei\">");
+                for (String s : versionInfo) {
                     msgBuilder.append("<p>").append(s).append("</p>");
                 }
                 msgBuilder.append("</div></html>");
 
-                JTextPane f = createTextPane(msgBuilder.toString());
+                JPanel mainPanel = new JPanel(new BorderLayout());
+                mainPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 30));
+                JTextPane versionPanel = createTextPane(msgBuilder.toString());
+                versionPanel.setBorder(new javax.swing.border.EmptyBorder(0, 0, 20, 0));
+                // 监听点击前往下载
+                versionPanel.addHyperlinkListener(e -> {
+                    if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                        try {
+                            java.awt.Desktop.getDesktop().browse(e.getURL().toURI());
+                        } catch (Exception ex) {
+                            logger.error("打开浏览器失败", ex);
+                        }
+                    }
+                });
 
-                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(frame, f, "新版本提示", JOptionPane.INFORMATION_MESSAGE));
+                mainPanel.add(versionPanel, BorderLayout.NORTH);
+
+                // 下半部分, 显示版本新特性
+                msgBuilder.setLength(0);
+                msgBuilder.append("<html><div style=\"padding: 0 20px; " +
+                        "font-family: Consolas, PingFang SC, Microsoft YaHei\")");
+                for (String s : bodyInfo) {
+                    msgBuilder.append("<p>").append(s).append("</p>");
+                }
+                msgBuilder.append("</div></html>");
+
+                JTextPane bodyPane = createTextPane(msgBuilder.toString());
+                JScrollPane scrollPane = new JScrollPane(bodyPane);
+                scrollPane.setPreferredSize(new Dimension(500, 300));
+                mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(frame, mainPanel, "新版本提示", JOptionPane.INFORMATION_MESSAGE));
             }
         });
+    }
+
+    private List<String> parseReleaseResponse(GithubReleaseEntity githubReleaseEntity) {
+        if (githubReleaseEntity == null){
+            warn("远程版本信息解析错误");
+        }
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        StringBuilder stringBuilder = new StringBuilder();
+        // 版本信息
+        String versionInfo = stringBuilder.append("发现新版本: ").append(githubReleaseEntity.tag_name()).append("\n")
+                .append("-").append("发布于: ").append(simpleDateFormat.format(githubReleaseEntity.created_at())).append("\n")
+                .append("-").append("下载地址: <a href='").append(githubReleaseEntity.html_url()).append("'>").append("点击前往下载").append("</a>").append("\n").toString();
+        // 清空
+        stringBuilder.setLength(0);
+        // 新版本特性
+        String bodyInfo = stringBuilder.append(githubReleaseEntity.body()).toString();
+
+
+        ArrayList<String> releaseInfos = new ArrayList<>(2);
+
+        releaseInfos.add(versionInfo);
+        releaseInfos.add(bodyInfo);
+
+        return releaseInfos;
     }
 
 ///////////////////////////

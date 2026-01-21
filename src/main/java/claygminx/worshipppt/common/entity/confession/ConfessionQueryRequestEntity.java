@@ -1,7 +1,9 @@
 package claygminx.worshipppt.common.entity.confession;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 信条查询参数实体

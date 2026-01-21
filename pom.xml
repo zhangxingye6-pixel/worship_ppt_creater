@@ -6,7 +6,7 @@
 
     <groupId>lazarus</groupId>
     <artifactId>worship-ppt-auto-creater</artifactId>
-    <version>v1.5.1</version>
+    <version>v0.0.0</version>
 
     <name>Worship PPT Creater</name>
     <description>一个用于自动制作敬拜PPT的小工具</description>
