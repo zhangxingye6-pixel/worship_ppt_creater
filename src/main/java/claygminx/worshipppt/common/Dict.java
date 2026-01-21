@@ -50,6 +50,9 @@ public class Dict {
         public final static String POETRY_CONTENT_SPACE_BEFORE = "ppt.poetryContent.spaceBefore";
         // 读经
         public final static String READING_SCRIPTURE_FONT_SIZE = "ppt.readingScripture.fontSize";
+
+        // 宣信主题
+        public final static String DECLARATION_METHOD = "ppt.declaration.method";
         // 圣餐：诗歌
         public final static String HOLY_COMMUNION_POETRY_TOP = "ppt.holyCommunion.poetry.top";
         // 圣餐：非会友领餐名单表格

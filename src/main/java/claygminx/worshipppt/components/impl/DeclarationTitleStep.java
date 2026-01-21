@@ -1,6 +1,6 @@
 package claygminx.worshipppt.components.impl;
 
-import claygminx.worshipppt.common.DeclarationThemeEnum;
+import claygminx.worshipppt.common.DeclarationTheme;
 import claygminx.worshipppt.common.Dict;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.DeclarationEntity;
@@ -27,6 +27,15 @@ public class DeclarationTitleStep extends AbstractWorshipStep {
 
     private final DeclarationEntity declarationEntity;
     private final ConfessionService confessionService;
+
+    /**
+     * 设定宣信主题，目前是西敏信条，如果需要扩展，请增加ConfessionTheme中的映射
+     */
+    public final static String DECLARATION_METHOD_NAME;
+
+    static {
+        DECLARATION_METHOD_NAME = SystemConfig.getString(Dict.PPTProperty.DECLARATION_METHOD);
+    }
 
     public DeclarationTitleStep(XMLSlideShow ppt, String layout, ConfessionService confessionService, DeclarationEntity declarationEntity) {
         super(ppt, layout);
@@ -63,12 +72,12 @@ public class DeclarationTitleStep extends AbstractWorshipStep {
             for (XSLFTextRun textRun : textRuns) {
                 if (textRun.getRawText().contains(getCustomPlaceholder())) {
                     if (index == 0) {
-                        textRun.setText(textRun.getRawText().replace(getCustomPlaceholder(), DeclarationThemeEnum.WESTMINSTER_CONFESSION.getDesc()));
+                        textRun.setText(textRun.getRawText().replace(getCustomPlaceholder(), DeclarationTheme.DECLARATION_METHOD_MAP.get(DECLARATION_METHOD_NAME)));
                         textRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
                         textRun.setFontSize(SystemConfig.getUserConfigOrDefault(Dict.PPTProperty.GENERAL_TITLE_FONT_SIZE, AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE));
                         TextUtil.setScriptureFontColor(textRun, TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
                         index++;
-                        logger.debug("填充了宣信主题：" + DeclarationThemeEnum.WESTMINSTER_CONFESSION.getDesc());
+                        logger.debug("填充了宣信主题：" + DeclarationTheme.DECLARATION_METHOD_MAP.get(DECLARATION_METHOD_NAME));
                     } else {
                         StringBuilder stringBuilder = new StringBuilder();
                         String coverTitle = stringBuilder.append("第").append(chapter).append("章 ").append("《").append(chapterName).append("》").toString();

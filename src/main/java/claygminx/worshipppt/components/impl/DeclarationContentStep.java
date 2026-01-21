@@ -1,7 +1,7 @@
 package claygminx.worshipppt.components.impl;
 
-import claygminx.worshipppt.common.DeclarationThemeEnum;
 import claygminx.worshipppt.common.Dict;
+import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.DeclarationEntity;
 import claygminx.worshipppt.common.entity.confession.ConfessionContentEntity;
 import claygminx.worshipppt.common.entity.confession.ConfessionQueryRequestEntity;
@@ -30,12 +30,6 @@ public class DeclarationContentStep extends AbstractWorshipStep {
 
     private final static Logger logger = LoggerFactory.getLogger(DeclarationContentStep.class);
 
-    /**
-     * 设定宣信主题，目前是西敏信条，如果需要扩展，请增加ConfessionThemeEnum的枚举成员
-     */
-    public final static DeclarationThemeEnum declarationTheme = DeclarationThemeEnum.WESTMINSTER_CONFESSION;
-
-
     // 在OGNl上下文容器获取服务
     private final ConfessionService confessionService;
     private final DeclarationEntity declarationEntity;
@@ -50,8 +44,8 @@ public class DeclarationContentStep extends AbstractWorshipStep {
     @Override
     public void execute() throws ScriptureNumberException, PPTLayoutException {
         logger.info("开始制作宣信内容幻灯片");
-        switch (declarationTheme) {
-            case WESTMINSTER_CONFESSION -> {
+        switch (DeclarationTitleStep.DECLARATION_METHOD_NAME) {
+            case "西敏信条" -> {
                 // 解析西敏信条章节参数，获取信条节实体列表， 获取格式化的列表
                 List<ConfessionVerseEntity> confessionVerseEntities = validateConfessionNumber(declarationEntity.getTitle());
                 List<String> formatConfessionContent = null;

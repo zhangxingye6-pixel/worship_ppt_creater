@@ -56,7 +56,7 @@ public class UpgradeServiceImpl implements UpgradeService {
             String owner = SystemConfig.getString(Dict.GithubProperty.OWNER);
             String repo = SystemConfig.getString(Dict.GithubProperty.REPO);
             String url = String.format("https://api.github.com/repos/%s/%s/releases/latest", owner, repo);
-            logger.info("github request build [" + "GET " + url + "]");
+            logger.debug("github request build [" + "GET " + url + "]");
             HttpGet httpGet = new HttpGet(url);
 //            httpGet.addHeader("Content-Type", "application/json;charset=UTF-8");
             // Github Rest Api "Get the latest release"请求
@@ -69,7 +69,7 @@ public class UpgradeServiceImpl implements UpgradeService {
                     .build();
             httpGet.setConfig(requestConfig);
             CloseableHttpResponse response = client.execute(httpGet);
-            logger.info("请求成功");
+            logger.info("版本检查请求成功");
 
             if (HttpStatus.SC_NOT_FOUND == response.getCode()) {
                 logger.warn("{} 返回404！", url);
