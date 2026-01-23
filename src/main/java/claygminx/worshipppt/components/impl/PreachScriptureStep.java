@@ -22,10 +22,10 @@ import java.awt.*;
  */
 public class PreachScriptureStep extends AbstractWorshipStep {
     // 文本参数
-    // TODO 修改经文页面布局
+    private final static int BEST_VERSE_COUNT = 4;
     private final static int BEST_LINE_COUNT = 8;       // 最佳行数
-    private final static int BEST_HEIGHT = 400;         // 最佳高度
-    private final static int MAX_CHAR_COUNT = 32;       // 每行最大字数
+    private final static double BEST_HEIGHT = 12.4;     // 厘米数值，需要转成points
+    private final static int MAX_CHAR_COUNT = 28;       // 每行最大字数,按照默认字号35计算
 
     // 经文服务对象
     private final ScriptureService scriptureService;
@@ -64,14 +64,13 @@ public class PreachScriptureStep extends AbstractWorshipStep {
         XMLSlideShow ppt = getPpt();
         XSLFSlideLayout layout = ppt.findLayout(getLayout());
 
-        // 按预设的模板，每一行最多32个中文字符，每一页行数最佳是6行，尽量控制最多8行
+        // 按预设的模板，每一行最多28个中文字符，每一页行数最佳是8行
         XSLFSlide slide = null;
         XSLFTextShape placeholder = null;
-        int lineCount = 0, slideCount = 0;
+        int lineCount = 0;      // 行数计数器
+        int slideCount = 0;     // 页面数量计数器
+        int verseCount = 0;     // 节计数器
         for (int i = 0; i < scriptureArray.length; i++) {
-            // 当前页面中已经添加了几节经文
-//            int currentVerseCount;
-
             String scriptureItem = scriptureArray[i];
             if (lineCount == 0) {
                 slideCount++;
@@ -98,29 +97,33 @@ public class PreachScriptureStep extends AbstractWorshipStep {
             XSLFTextRun textRun = paragraph.addNewTextRun();
             String trimScriptureItem = scriptureItem.trim();
             textRun.setText(trimScriptureItem);
+            verseCount++;
 
             // 每一节的颜色不同，与读经颜色顺序保持一致，先蓝色后黑色
-            if(i % 2 == 1){
+            if (i % 2 == 1) {
                 // 奇数行，显示蓝色字体
                 TextUtil.setScriptureFontColor(textRun, claygminx.worshipppt.util.TextUtil.FontColor.RGB_FONT_COLOR_BLUE);
-            }else{
+            } else {
                 // 偶数行，显示黑色字体
                 TextUtil.setScriptureFontColor(textRun, claygminx.worshipppt.util.TextUtil.FontColor.RGB_FONT_COLOR_BLACK);
             }
 
-            // 控制幻灯片里经文的数量和幻灯片的数量
-            // TODO 证道经文部分的文本可以更多一些
+
+            /**
+             * TODO 经文行数控制
+             *      1. 设置一个优先级 递减排列 节数->行数->高度
+             *      2.先尝试放4节进去，如果行数或者高度超过了，就只放两节
+             */
             int currentHeight = (int) Math.ceil(placeholder.getTextHeight());// 当前文本框的高度
             // 测试打印
             logger.info("当前文本框高度：" + currentHeight);
-            int n = (int) Math.ceil((double) trimScriptureItem.length() / MAX_CHAR_COUNT);// 此节经文可能展示为多少行
-            lineCount += n;
+            int lineNum = (int) Math.ceil((double) trimScriptureItem.length() / MAX_CHAR_COUNT);// 此节经文可能展示为多少行
+            // 当前页面经文行数
+            lineCount += lineNum;
             // 当前文本框高度超过 或者经文行数超过设定的最佳值
-            if (currentHeight >= BEST_HEIGHT || lineCount >= BEST_LINE_COUNT) {
-                if (i < scriptureArray.length - 2) {
-                    logger.debug("当前幻灯片有{}个段落，应该有{}行", placeholder.getTextParagraphs().size(), lineCount);
-                    lineCount = 0;
-                }
+            if (currentHeight >= TextUtil.convertToPoints(BEST_HEIGHT) || lineCount >= BEST_LINE_COUNT) {
+                logger.debug("当前幻灯片有{}个段落，应该有{}行", placeholder.getTextParagraphs().size(), lineCount);
+                lineCount = 0;
             }
         }
 
