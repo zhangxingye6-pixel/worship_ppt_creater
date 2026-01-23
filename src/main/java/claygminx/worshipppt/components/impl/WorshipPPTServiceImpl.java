@@ -3,10 +3,7 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.WorshipEntity;
 import claygminx.worshipppt.components.*;
-import claygminx.worshipppt.exception.FileServiceException;
-import claygminx.worshipppt.exception.PPTLayoutException;
-import claygminx.worshipppt.exception.SystemException;
-import claygminx.worshipppt.exception.WorshipStepException;
+import claygminx.worshipppt.exception.*;
 import claygminx.worshipppt.common.Dict;
 import lombok.extern.slf4j.Slf4j;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTextCharacterProperties;
@@ -43,7 +40,7 @@ public class WorshipPPTServiceImpl implements WorshipPPTService {
     }
 
     @Override
-    public void make() throws FileServiceException, WorshipStepException, PPTLayoutException {
+    public void make() throws FileServiceException, WorshipStepException, PPTLayoutException, PoetrySourcesNotExistException {
         // 1.准备PPT文件
         try {
             fileService.copyTemplate(file);
@@ -56,7 +53,7 @@ public class WorshipPPTServiceImpl implements WorshipPPTService {
 
         // 2.按照指定模板制作幻灯片
         XMLSlideShow ppt;
-        try (FileInputStream fis  = new FileInputStream(file)) {
+        try (FileInputStream fis = new FileInputStream(file)) {
             // 创建PPT对象
             ppt = new XMLSlideShow(fis);
             // 使用自定义语言
@@ -88,7 +85,9 @@ public class WorshipPPTServiceImpl implements WorshipPPTService {
             throw e;
         } catch (PPTLayoutException e) {
             throw new PPTLayoutException(e.getMessage(), e);
-        } catch (Exception e){
+        } catch (PoetrySourcesNotExistException e) {
+            throw new PoetrySourcesNotExistException(e.getMessage(), e);
+        } catch (Exception e) {
             throw new SystemException("出现未知错误！", e);
         }
 

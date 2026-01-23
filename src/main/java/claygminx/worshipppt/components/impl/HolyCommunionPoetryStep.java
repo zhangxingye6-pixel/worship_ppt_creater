@@ -3,6 +3,7 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.PoetryEntity;
 import claygminx.worshipppt.exception.PPTLayoutException;
+import claygminx.worshipppt.exception.PoetrySourcesNotExistException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.common.Dict;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
@@ -24,8 +25,12 @@ public class HolyCommunionPoetryStep extends RegularPoetryStep {
     }
 
     @Override
-    public void execute() throws WorshipStepException, PPTLayoutException {
-        super.execute();
+    public void execute() throws WorshipStepException, PPTLayoutException, PoetrySourcesNotExistException {
+        try {
+            super.execute();
+        } catch (PoetrySourcesNotExistException e) {
+            throw new PoetrySourcesNotExistException("圣餐诗歌：" + e.getMessage());
+        }
     }
 
     @Override

@@ -3,6 +3,7 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.PoetryEntity;
 import claygminx.worshipppt.exception.PPTLayoutException;
+import claygminx.worshipppt.exception.PoetrySourcesNotExistException;
 import claygminx.worshipppt.exception.SystemException;
 import claygminx.worshipppt.exception.WorshipStepException;
 import claygminx.worshipppt.common.Dict;
@@ -33,13 +34,17 @@ public class InitiationStep extends RegularPoetryStep {
     }
 
     @Override
-    public void execute() throws WorshipStepException, PPTLayoutException {
+    public void execute() throws WorshipStepException, PPTLayoutException, PoetrySourcesNotExistException {
         XMLSlideShow sourcePpt = getSourcePpt();
         XMLSlideShow targetPpt = getPpt();
         int poetrySlideOrder = SystemConfig.getInt(Dict.PPTProperty.MASTER_INITIATION_POETRY_SLIDE_ORDER);
 
         copyInitiationSlide(targetPpt, sourcePpt, 0, poetrySlideOrder);
-        super.execute();
+        try {
+            super.execute();
+        } catch (PoetrySourcesNotExistException e) {
+            throw new PoetrySourcesNotExistException("入会诗歌：" + e.getMessage());
+        }
         copyInitiationSlide(targetPpt, sourcePpt, poetrySlideOrder, -1);
 
         logger.info("入会幻灯片制作完成");

@@ -3,8 +3,10 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.common.entity.PoetryEntity;
 import claygminx.worshipppt.exception.PPTLayoutException;
+import claygminx.worshipppt.exception.PoetrySourcesNotExistException;
 import claygminx.worshipppt.exception.SystemException;
 import claygminx.worshipppt.exception.WorshipStepException;
+import claygminx.worshipppt.util.PoetryFileLocator;
 import claygminx.worshipppt.util.TextUtil;
 import claygminx.worshipppt.util.PictureUtil;
 import claygminx.worshipppt.common.Dict;
@@ -15,6 +17,7 @@ import org.apache.poi.xslf.usermodel.*;
 
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -43,8 +46,15 @@ public class RegularPoetryStep extends AbstractWorshipStep {
         this.poetryList = poetryList;
     }
 
+    /**
+     * 增加检查ppt子目录
+     *
+     * @throws WorshipStepException
+     * @throws PPTLayoutException
+     * @throws PoetrySourcesNotExistException
+     */
     @Override
-    public void execute() throws WorshipStepException, PPTLayoutException {
+    public void execute() throws WorshipStepException, PPTLayoutException, PoetrySourcesNotExistException {
         List<PoetryEntity> poetryList = getPoetryList();
         for (PoetryEntity poetry : poetryList) {
             File directory = poetry.getDirectory();
@@ -53,17 +63,16 @@ public class RegularPoetryStep extends AbstractWorshipStep {
             } catch (IllegalArgumentException | FileNotFoundException e) {
                 throw new WorshipStepException("检查文件夹：" + e.getMessage(), e);
             }
-            File[] files = directory.listFiles((dir, name) -> name.endsWith(getFileExtensionName()));
-            if (files == null || files.length == 0) {
-                return;
-            }
-            if (files.length > 1) {
-                sortFiles(files);
+            File[] poetryFiles = PoetryFileLocator.getPoetryFiles(directory);
+
+            // 超过一张图片，进行排序
+            if (poetryFiles.length > 1) {
+                sortFiles(poetryFiles);
             }
 
             // 下面开始一张张地制作幻灯片
             try {
-                makeSlides(files);
+                makeSlides(poetryFiles);
             } catch (SystemException e) {
                 throw new WorshipStepException("系统异常：" + e.getMessage(), e);
             } catch (PPTLayoutException e) {
@@ -135,7 +144,6 @@ public class RegularPoetryStep extends AbstractWorshipStep {
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException("[" + directory.getAbsolutePath() + "]不是文件夹！");
         }
-        // 在
     }
 
     /**

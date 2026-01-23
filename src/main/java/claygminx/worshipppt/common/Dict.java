@@ -35,6 +35,7 @@ public class Dict {
         public final static String POETRY_TITLE_FONT_SIZE = "ppt.poetryTitle.fontSize";
         // 诗歌：歌谱图
         public final static String POETRY_EXTENSION = "ppt.poetry.extension";
+        public final static String POETRY_SUB_DICTIONARY = "ppt.poetry.subDictionary";
         public final static String POETRY_WIDTH = "ppt.poetry.width";
         public final static String POETRY_LEFT = "ppt.poetry.left";
         public final static String POETRY_TOP = "ppt.poetry.top";

@@ -4,6 +4,7 @@ import claygminx.worshipppt.common.config.SystemConfig;
 import claygminx.worshipppt.components.*;
 import claygminx.worshipppt.exception.*;
 import claygminx.worshipppt.common.entity.*;
+import claygminx.worshipppt.util.PoetryFileLocator;
 import claygminx.worshipppt.util.ScriptureUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -926,7 +927,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
             return null;
         }
         int count = 0;
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder errorBuilder = new StringBuilder();
         // 遍历当前albumName面板中的诗歌列表
         for (int i = 0; i < poetryTextFieldList.size(); i++) {
             JTextField[] textFields = poetryTextFieldList.get(i);
@@ -937,30 +938,20 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
             // 检查输入的完整性
             if (!isEmpty(name) && isEmpty(directory) || isEmpty(name) && !isEmpty(directory)) {
-                return " - " + albumName + "中第" + (i + 1) + "行诗歌输入不完整！";
+                errorBuilder.append(" - " + albumName + "第" + (i + 1) + "首诗歌输入不完整\n");
             }
             File dirFile = new File(directory);
             if (dirFile.exists()) {
-                // 创建筛选指定后缀的过滤器
-                java.io.FileFilter fileFilter = new java.io.FileFilter() {
-                    @Override
-                    public boolean accept(File subFile) {
-                        boolean isFile = subFile.isFile();
-                        boolean isEndsWith = subFile.getName().endsWith(SystemConfig.getString(PPTProperty.POETRY_EXTENSION));
-                        return isFile && isEndsWith;
-                    }
-                };
-                File[] targetFiles = dirFile.listFiles(fileFilter);
-                if (targetFiles == null) {
-                    // 目录存在但没有读取权限或者目录异常
-                    stringBuilder.append(" - " + albumName + "中第" + (i + 1) + "行输入的文件夹无读取权限，无法检查歌谱文件\n");
-                } else if (targetFiles.length == 0) {
-                    // 目录存在但没有目标图谱文件
-                    stringBuilder.append(" - " + albumName + "中第" + (i + 1) + "行输入的文件夹中未找到指定后缀的歌谱文件\n");
+
+                try {
+                    PoetryFileLocator.getPoetryFiles(dirFile);
+                } catch (PoetrySourcesNotExistException e) {
+                    logger.info(e.getMessage());
+                    errorBuilder.append(" - " + albumName + "中第" + (i + 1) + "首诗歌未发现歌谱");
                 }
             } else {
                 // 目录不存在
-                stringBuilder.append(" - " + albumName + "中第" + (i + 1) + "行输入的路径中不存在\n");
+                errorBuilder.append(" - " + albumName + "第" + (i + 1) + "行输入的路径不存在\n");
             }
 
 
@@ -968,9 +959,9 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                 count++;
             }
         }
-        if (!stringBuilder.isEmpty()) {
+        if (!errorBuilder.isEmpty()) {
             // 有不满足的路径
-            return stringBuilder.toString();
+            return errorBuilder.toString();
         }
         logger.debug("向{}输入了{}首诗歌", albumName, count);
         if (count < minCount) {
