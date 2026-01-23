@@ -6,10 +6,51 @@
 
     <groupId>lazarus</groupId>
     <artifactId>worship-ppt-auto-creator</artifactId>
-    <version>v1.6.0.3</version>
+    <version>v1.6.0</version>
 
     <name>Worship PPT Creater</name>
     <description>一个用于自动制作敬拜PPT的小工具</description>
+
+    <!-- 新增：插件仓库配置 -->
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>github-packages</id>
+            <url>https://maven.pkg.github.com/fvarrui/javapackager</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>github-packages</id>
+            <url>https://maven.pkg.github.com/fvarrui/javapackager</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,92 +58,93 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <built-by>Lazarus</built-by>
         <timestamp>${maven.build.timestamp}</timestamp>
-        <!-- 统一插件版本，避免冲突 -->
-        <javapackager.version>1.7.2</javapackager.version>
-        <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
     </properties>
 
     <dependencies>
-        <!-- Log4j2 日志门面 -->
+        <!--Log4j2自带的日志门面-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>2.17.1</version>
         </dependency>
-        <!-- Log4j2 日志实现 -->
+
+        <!--Log4j2具体的日志实现-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <version>2.17.1</version>
         </dependency>
-        <!-- Log4j2 适配 SLF4J -->
+
+        <!-- 跟Log4j2配合使用 -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>2.17.1</version>
         </dependency>
 
-        <!-- PPT 处理依赖 -->
+        <!-- PPT -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>5.2.5</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.5</version>
         </dependency>
 
-        <!-- SQLite 数据库依赖 -->
+        <!-- 圣经数据库 -->
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.39.2.0</version>
         </dependency>
 
-        <!-- Freemarker 模板引擎 -->
+        <!-- 用于定义经文格式 -->
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>2.3.31</version>
         </dependency>
 
-        <!-- XML 解析依赖 -->
+        <!-- 用于解析敬拜流程 -->
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <version>2.1.4</version>
         </dependency>
+
+        <!-- 用于解析敬拜流程 -->
         <dependency>
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
             <version>3.3.3</version>
         </dependency>
 
-        <!-- HTTP 客户端 -->
+        <!-- 用于查询GitHub内此软件的发行版信息，以判断要不要升级 -->
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
             <version>5.1.3</version>
         </dependency>
 
-        <!-- JSON 解析 -->
+        <!-- JSON -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.9.1</version>
         </dependency>
 
-        <!-- Swing 界面美化 -->
+        <!-- FlatLaF swing Look and Feel -->
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
             <version>2.4</version>
         </dependency>
 
-        <!-- Lombok 简化代码 -->
+        <!-- lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -110,7 +152,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Apache Commons 工具类 -->
+        <!-- Apache Commons Lang3 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -119,7 +161,6 @@
     </dependencies>
 
     <profiles>
-        <!-- Windows 打包配置 -->
         <profile>
             <id>windows</id>
             <activation>
@@ -132,7 +173,7 @@
                     <plugin>
                         <groupId>io.github.fvarrui</groupId>
                         <artifactId>javapackager</artifactId>
-                        <version>${javapackager.version}</version>
+                        <version>1.7.2</version>
                         <configuration>
                             <mainClass>claygminx.worshipppt.Main</mainClass>
                             <bundleJre>true</bundleJre>
@@ -170,8 +211,6 @@
                 </plugins>
             </build>
         </profile>
-
-        <!-- macOS 打包配置 -->
         <profile>
             <id>mac</id>
             <activation>
@@ -184,11 +223,12 @@
                     <plugin>
                         <groupId>io.github.fvarrui</groupId>
                         <artifactId>javapackager</artifactId>
-                        <version>${javapackager.version}</version>
+                        <version>1.7.2</version>
                         <configuration>
                             <mainClass>claygminx.worshipppt.Main</mainClass>
                             <bundleJre>true</bundleJre>
                             <customizedJre>true</customizedJre>
+
                             <url>https://github.com/ClayGminx/worship-ppt</url>
                             <generateInstaller>false</generateInstaller>
                             <administratorRequired>false</administratorRequired>
@@ -198,9 +238,10 @@
                             <jdkPath>${java.home}</jdkPath>
                             <jrePath>${java.home}</jrePath>
                             <macConfig>
-                                <!-- 如需仅生成.app，将generateDmg改为false -->
                                 <generateDmg>true</generateDmg>
                                 <generatePkg>false</generatePkg>
+                                <appName>WorshipPPT</appName>
+                                <identifier>com.claygminx.worshipppt</identifier>
                             </macConfig>
                             <additionalResources>
                                 <additionalResource>config</additionalResource>
@@ -237,11 +278,10 @@
             </resource>
         </resources>
         <plugins>
-            <!-- 资源拷贝插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven-resources-plugin.version}</version>
+                <version>3.1.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <nonFilteredFileExtensions>
@@ -250,16 +290,14 @@
                     </nonFilteredFileExtensions>
                 </configuration>
             </plugin>
-
-            <!-- 编译插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
+                <version>3.11.0</version> <!-- 升级版本 -->
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <encoding>UTF-8</encoding>
+                    <encoding>UTF-8</encoding> <!-- 新增编码配置 -->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -269,28 +307,7 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-
-            <!-- 确保打包时依赖完整（可选，防止依赖缺失） -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.6.0</version> <!-- 升级为稳定兼容版 -->
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>false</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
 </project>
