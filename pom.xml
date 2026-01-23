@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>lazarus</groupId>
-    <artifactId>worship-ppt-auto-creater</artifactId>
+    <artifactId>worship-ppt-auto-creator</artifactId>
     <version>v1.5.5</version>
 
     <name>Worship PPT Creater</name>
