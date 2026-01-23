@@ -11,47 +11,6 @@
     <name>Worship PPT Creater</name>
     <description>一个用于自动制作敬拜PPT的小工具</description>
 
-    <!-- 新增：插件仓库配置 -->
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>https://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>github-packages</id>
-            <url>https://maven.pkg.github.com/fvarrui/javapackager</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>central</id>
-            <url>https://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>github-packages</id>
-            <url>https://maven.pkg.github.com/fvarrui/javapackager</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
@@ -156,7 +115,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.14.0</version>
+            <version>3.14.0</version> <!-- 建议使用最新稳定版 -->
         </dependency>
     </dependencies>
 
@@ -228,7 +187,6 @@
                             <mainClass>claygminx.worshipppt.Main</mainClass>
                             <bundleJre>true</bundleJre>
                             <customizedJre>true</customizedJre>
-
                             <url>https://github.com/ClayGminx/worship-ppt</url>
                             <generateInstaller>false</generateInstaller>
                             <administratorRequired>false</administratorRequired>
@@ -240,8 +198,6 @@
                             <macConfig>
                                 <generateDmg>true</generateDmg>
                                 <generatePkg>false</generatePkg>
-                                <appName>WorshipPPT</appName>
-                                <identifier>com.claygminx.worshipppt</identifier>
                             </macConfig>
                             <additionalResources>
                                 <additionalResource>config</additionalResource>
@@ -293,11 +249,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version> <!-- 升级版本 -->
+                <version>3.5.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <encoding>UTF-8</encoding> <!-- 新增编码配置 -->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
