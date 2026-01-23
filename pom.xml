@@ -6,9 +6,9 @@
 
     <groupId>lazarus</groupId>
     <artifactId>worship-ppt-auto-creator</artifactId>
-    <version>v1.6.3</version>
+    <version>v1.5.5</version>
 
-    <name>worship-ppt-auto-creator</name>
+    <name>Worship PPT Creater</name>
     <description>一个用于自动制作敬拜PPT的小工具</description>
 
     <properties>
@@ -138,7 +138,7 @@
                             <bundleJre>true</bundleJre>
                             <customizedJre>true</customizedJre>
                             <url>https://github.com/ClayGminx/worship-ppt</url>
-                            <generateInstaller>true</generateInstaller>
+                            <generateInstaller>false</generateInstaller>
                             <administratorRequired>false</administratorRequired>
                             <platform>windows</platform>
                             <createZipball>true</createZipball>
@@ -196,7 +196,7 @@
                             <jdkPath>${java.home}</jdkPath>
                             <jrePath>${java.home}</jrePath>
                             <macConfig>
-                                <generateDmg>true</generateDmg>
+                                <generateDmg>false</generateDmg>
                                 <generatePkg>false</generatePkg>
                             </macConfig>
                             <additionalResources>
