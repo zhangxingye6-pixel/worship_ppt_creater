@@ -31,20 +31,48 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build with Maven
+      # 问题1修复：给Step起不同的名称，避免覆盖
+      - name: Build with Maven (Windows)
         run: mvn clean package -Pwindows
         if: matrix.os == 'windows-latest'
 
-      - name: Build with Maven
+      - name: Build with Maven (macOS)
         run: mvn clean package -Pmac
         if: matrix.os == 'macos-latest'
 
-      - name: Upload to Release
+      # 问题2+3修复：按系统过滤上传的文件，只传对应系统的产物
+      - name: Upload Windows Release Assets
         uses: softprops/action-gh-release@v1
+        if: matrix.os == 'windows-latest'
         with:
-          files:
-            target/*.zip
-            target/**/*.dmg
-
+          files: target/*.zip  # 只上传Windows的zip包
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS Release Assets
+        uses: softprops/action-gh-release@v1
+        if: matrix.os == 'macos-latest'
+        with:
+          files: target/**/*.dmg  # 只上传macOS的dmg包
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            
+            # Windows验证
+      - name: Verify Windows Build Output
+        if: matrix.os == 'windows-latest'
+        run: |
+            ls -la target/*.zip  # Git Bash命令，查看zip文件是否存在
+            if [ ! -f target/*.zip ]; then
+             echo "Windows打包产物不存在！"
+             exit 1
+            fi
+
+            # macOS验证
+      - name: Verify macOS Build Output
+        if: matrix.os == 'macos-latest'
+        run: |
+            ls -la target/*.dmg  # 查看dmg文件是否存在
+            if [ ! -f target/*.dmg ]; then
+             echo "macOS打包产物不存在！"
+             exit 1
+            fi
