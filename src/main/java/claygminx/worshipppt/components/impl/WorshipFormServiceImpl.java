@@ -52,8 +52,8 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
     // 布局用的常量
     public final static String APP_TITLE = "Worship PPT";
-    public final static Dimension FRAME_SIZE = new Dimension(750, 600);
-    public final static Dimension FRAME_MIN_SIZE = new Dimension(650, 450);
+    public final static Dimension FRAME_SIZE = new Dimension(850, 700);
+    public final static Dimension FRAME_MIN_SIZE = new Dimension(730, 550);
     public final static int TABLE_HEADER_HEIGHT = 30;
     public final static int TABLE_ROW_HEIGHT = 36;
     public final static int TEXT_FIELD_HEIGHT = 30;
@@ -61,7 +61,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
     public final static int REGULAR_TABLE_RIGHT_WIDTH = 400;
     public final static int POETRY_TABLE_COLUMN_WIDTH_1 = 180;
     public final static int POETRY_TABLE_COLUMN_WIDTH_2 = 300;
-    public final static int POETRY_TABLE_COLUMN_WIDTH_3 = 140;
+    public final static int POETRY_TABLE_COLUMN_WIDTH_3 = 210;
     public final static int BUTTON_WIDTH = 60;
     public final static int PADDING_LEFT = 6;
     public final static int V_SCROLL_BAR_SPEED = 20;
@@ -922,10 +922,10 @@ public class WorshipFormServiceImpl implements WorshipFormService {
      * @return
      */
     private String checkPoetryInfo(String albumName, List<JTextField[]> poetryTextFieldList, int minCount) {
-        // 当前使用环境不需要检查祷告诗歌
-        if (albumName.equals(PoetryAlbumName.PRAY_POETRY)) {
-            return null;
-        }
+//        // 当前使用环境不需要检查祷告诗歌
+//        if (albumName.equals(PoetryAlbumName.PRAY_POETRY)) {
+//            return null;
+//        }
         int count = 0;
         StringBuilder errorBuilder = new StringBuilder();
         // 遍历当前albumName面板中的诗歌列表
@@ -935,7 +935,10 @@ public class WorshipFormServiceImpl implements WorshipFormService {
             String name = textFields[0].getText();
             // 获取路径栏目的字符串
             String directory = textFields[1].getText();
-
+            // 如果没有输入，跳过检查
+            if (isEmpty(name) && isEmpty(directory)){
+                return null;
+            }
             // 检查输入的完整性
             if (!isEmpty(name) && isEmpty(directory) || isEmpty(name) && !isEmpty(directory)) {
                 errorBuilder.append(" - " + albumName + "第" + (i + 1) + "首诗歌输入不完整\n");
@@ -1339,10 +1342,12 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         JButton[] buttons = addOperationButtons(rowBox);
         JButton insertButton = buttons[0];
         JButton deleteButton = buttons[1];
+        JButton clearButton = buttons[2];
         Box tableBox = (Box) rowBox.getParent();
 
         insertButton.addActionListener(createPoetryInsertButtonActionListener(tableBox, rowBox));
         deleteButton.addActionListener(createPoetryDeleteButtonActionListener(tableBox, rowBox, textFieldsList));
+        clearButton.addActionListener(createPoetryClearButtonActionListener(tableBox, rowBox, textFieldsList));
     }
 
     /**
@@ -1397,6 +1402,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
         JButton[] buttons = addOperationButtons(rowBox);
         JButton insertButton = buttons[0];
         JButton deleteButton = buttons[1];
+        JButton clearButton = buttons[2];
         Box tableBox = (Box) rowBox.getParent();
 
         insertButton.addActionListener((action) -> run(() -> {
@@ -1423,28 +1429,42 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                 }
             }
         }));
+        clearButton.addActionListener((action) -> run(() -> {
+            int currentIndex = getIndexOfRowBox(tableBox, rowBox);
+            if (currentIndex != -1) {
+                int index = currentIndex - ROW_INDEX_OFFSET;
+                logger.debug("清空家事报告第{}行", index + 1);
+                JTextField textField = familyReportsTextFieldList.get(index);
+                textField.setText("");
+            }
+        }));
     }
 
     // 添加操作按钮
     private JButton[] addOperationButtons(Box rowBox) {
         JButton insertButton = new JButton("插入");
         JButton deleteButton = new JButton("删除");
+        JButton clearButton = new JButton("清空");
 
         Dimension dimension = insertButton.getPreferredSize();
         insertButton.setPreferredSize(new Dimension(BUTTON_WIDTH, (int) dimension.getHeight()));
         deleteButton.setPreferredSize(new Dimension(BUTTON_WIDTH, (int) dimension.getHeight()));
+        clearButton.setPreferredSize(new Dimension(BUTTON_WIDTH, (int) dimension.getHeight()));
 
         insertButton.setToolTipText("在这行下面插入一行");
         deleteButton.setToolTipText("删除当前行");
+        clearButton.setToolTipText("清空当前行的输入框");
 
         Box hBox = Box.createHorizontalBox();
         hBox.add(insertButton);
         hBox.add(Box.createHorizontalStrut(PADDING_LEFT));
         hBox.add(deleteButton);
+        hBox.add(Box.createHorizontalStrut(PADDING_LEFT));
+        hBox.add(clearButton);
 
         leftMiddle(rowBox, hBox, POETRY_TABLE_COLUMN_WIDTH_3);
 
-        return new JButton[]{insertButton, deleteButton};
+        return new JButton[]{insertButton, deleteButton, clearButton};
     }
 
     // 水平居左，垂直居中
@@ -1505,6 +1525,27 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                     tableBox.remove(currentIndex);
                     tableBox.getRootPane().revalidate();
                 }
+            }
+        });
+    }
+
+    /**
+     * 创建诗歌集面板中清空按钮的动作监听器
+     *
+     * @param tableBox       表格箱子布局
+     * @param rowBox         水平箱子布局
+     * @param textFieldsList 诗歌输入框列表
+     * @return 动作监听器
+     */
+    private ActionListener createPoetryClearButtonActionListener(Box tableBox, Box rowBox, List<JTextField[]> textFieldsList) {
+        return (action) -> run(() -> {
+            int currentIndex = getIndexOfRowBox(tableBox, rowBox);
+            if (currentIndex != -1) {
+                int index = currentIndex - ROW_INDEX_OFFSET;
+                logger.debug("清空第{}行诗歌", index + 1);
+                JTextField[] textFields = textFieldsList.get(index);
+                textFields[0].setText("");
+                textFields[1].setText("");
             }
         });
     }
