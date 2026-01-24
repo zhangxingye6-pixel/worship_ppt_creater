@@ -477,7 +477,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
 
         declarationTextFieldMap = new HashMap<>();
         JTextField titleTextField = addRegularTableInputRow(tableBox, DeclarationKey.TITLE);
-        titleTextField.setToolTipText("目前仅支持‘西敏信条18.1-3、信条18-19等相同格式输入’");
+        titleTextField.setToolTipText("目前仅支持‘西敏信条18:1-3、信条20:1,3、信条18-19等类似格式输入’");
         declarationTextFieldMap.put(DeclarationKey.TITLE, titleTextField);
         // 现阶段不需要讲员面板
 //        JTextField speakerTextField = addRegularTableInputRow(tableBox, DeclarationKey.SPEAKER);
@@ -649,8 +649,7 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                                     pptFile.getAbsolutePath() +
                                     "</p>" +
                                     "<p>你还需要做一些检查工作：</p>" +
-                                    "<ol><li><b>歌谱是否越界；</b></li>" +
-                                    "<li>圣餐诗歌需要手动调整以符合圣礼需要；</li>" +
+                                    "<ol><li>圣餐诗歌需要手动调整以符合圣礼需要；</li>" +
                                     "<li>还有更多需要细心检查的细节</li></ol></html>";
                             JTextPane f = createTextPane(message);
                             JOptionPane.showMessageDialog(frame, f, "提示", JOptionPane.INFORMATION_MESSAGE);
@@ -935,10 +934,15 @@ public class WorshipFormServiceImpl implements WorshipFormService {
             String name = textFields[0].getText();
             // 获取路径栏目的字符串
             String directory = textFields[1].getText();
-            // 如果没有输入，跳过检查
-            if (isEmpty(name) && isEmpty(directory)){
+
+            // 如果祷告诗歌和或者练唱诗歌没有输入，跳过检查
+            if (albumName.equals(PoetryAlbumName.PRAY_POETRY) && isEmpty(name) && isEmpty(directory)){
                 return null;
             }
+            if (albumName.equals(PoetryAlbumName.PRACTISE_POETRY) && isEmpty(name) && isEmpty(directory)){
+                return null;
+            }
+
             // 检查输入的完整性
             if (!isEmpty(name) && isEmpty(directory) || isEmpty(name) && !isEmpty(directory)) {
                 errorBuilder.append(" - " + albumName + "第" + (i + 1) + "首诗歌输入不完整\n");

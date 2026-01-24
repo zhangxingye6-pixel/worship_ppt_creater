@@ -3,12 +3,9 @@ package claygminx.worshipppt.components.impl;
 import claygminx.worshipppt.common.entity.PreachEntity;
 import claygminx.worshipppt.exception.PPTLayoutException;
 import claygminx.worshipppt.util.TextUtil;
+import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.poi.xslf.usermodel.XMLSlideShow;
-import org.apache.poi.xslf.usermodel.XSLFSlide;
-import org.apache.poi.xslf.usermodel.XSLFSlideLayout;
-import org.apache.poi.xslf.usermodel.XSLFTextShape;
 
 /**
  * 证道阶段
@@ -31,8 +28,11 @@ public class PreachStep extends AbstractWorshipStep {
         XSLFSlide slide = ppt.createSlide(layout);
 
         XSLFTextShape placeholder = TextUtil.getPlaceholderSafely(slide, 0, getLayout(), "");
-        String text = placeholder.getText();
-        placeholder.setText(text.replace(getCustomPlaceholder(), preachEntity.getTitle()));
+        XSLFTextRun preachTitleTextRun = TextUtil.clearAndCreateTextRun(placeholder);
+        preachTitleTextRun.setFontFamily(AbstractWorshipStep.DEFAULT_FONT_FAMILY);
+        preachTitleTextRun.setFontSize(AbstractWorshipStep.DEFAULT_TITLE_FONT_SIZE);
+        TextUtil.setScriptureFontColor(preachTitleTextRun, TextUtil.FontColor.RGB_FONT_COLOR_WHITE);
+        preachTitleTextRun.setText("《" + preachEntity.getTitle() + "》");
 
         logger.info("证道幻灯片制作完成");
     }
