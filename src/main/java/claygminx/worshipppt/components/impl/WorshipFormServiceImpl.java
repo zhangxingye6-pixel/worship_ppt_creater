@@ -1062,14 +1062,14 @@ public class WorshipFormServiceImpl implements WorshipFormService {
                 msgBuilder.append("</div></html>");
 
                 JPanel mainPanel = new JPanel(new BorderLayout());
-                mainPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 30));
+                mainPanel.setBorder(new EmptyBorder(10, 10, 10, 30));
                 JTextPane versionPanel = createTextPane(msgBuilder.toString());
-                versionPanel.setBorder(new javax.swing.border.EmptyBorder(0, 0, 20, 0));
+                versionPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
                 // 监听点击前往下载
                 versionPanel.addHyperlinkListener(e -> {
                     if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                         try {
-                            java.awt.Desktop.getDesktop().browse(e.getURL().toURI());
+                            Desktop.getDesktop().browse(e.getURL().toURI());
                         } catch (Exception ex) {
                             logger.error("打开浏览器失败", ex);
                         }
